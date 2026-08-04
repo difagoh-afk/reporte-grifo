@@ -513,6 +513,16 @@
     <button class="btn-add" onclick="addCreditItem()">+ Agregar crédito</button>
   </div>
 
+  <!-- GAS -->
+  <div class="section">
+    <div class="section-title">
+      <span class="dot" style="background:#f59e0b;"></span> Venta de Gas
+    </div>
+    <p class="note" style="margin-bottom:10px;">Registrar ventas de gas del turno. No afecta el cuadre del grifo.</p>
+    <div class="dynamic-list" id="list-gas"></div>
+    <button class="btn-add" onclick="addGasItem()">+ Agregar venta de gas</button>
+  </div>
+
   <!-- GASTOS EXTRA -->
   <div class="section">
     <div class="section-title">
@@ -571,18 +581,6 @@
   </div>
 
 
-  <!-- TOTAL MANUAL -->
-  <div class="section">
-    <div class="section-title">
-      <span class="dot dot-cash"></span> Total venta del turno
-    </div>
-    <p class="note" style="margin-bottom:10px;">El valor total que calcularon a mano en el reporte. El sistema verificará que coincida.</p>
-    <div class="field">
-      <label>TOTAL S/ (sin descontar gastos ni créditos)</label>
-      <input type="number" step="0.01" id="total-manual" placeholder="0.00" style="font-size:18px;font-weight:700;border-left:3px solid var(--cash);">
-    </div>
-  </div>
-
   <!-- SUBMIT -->
   <div class="submit-area">
     <button class="btn-submit" onclick="enviar()">ENVIAR REPORTE</button>
@@ -614,13 +612,34 @@ function addItem(group, label, type='number', hasNoCap=false) {
   div.appendChild(inp);
 
   if (hasNoCap) {
-    const lbl = document.createElement('label');
-    lbl.className = 'no-cap';
-    const cb = document.createElement('input');
-    cb.type = 'checkbox';
-    lbl.appendChild(cb);
-    lbl.appendChild(document.createTextNode('Sin cap.'));
-    div.appendChild(lbl);
+    const toggle = document.createElement('button');
+    toggle.type = 'button';
+    toggle.dataset.group = group + '-nocap';
+    toggle.dataset.active = 'false';
+    toggle.textContent = 'Sin captura';
+    toggle.style.cssText = [
+      'flex-shrink:0',
+      'padding:6px 10px',
+      'border-radius:6px',
+      'border:1.5px solid var(--rule)',
+      'background:#fff',
+      'color:#aaa',
+      'font-size:12px',
+      'font-weight:600',
+      'cursor:pointer',
+      'white-space:nowrap',
+      'transition:all .15s',
+      'line-height:1'
+    ].join(';');
+    toggle.onclick = function() {
+      const on = this.dataset.active === 'true';
+      this.dataset.active = on ? 'false' : 'true';
+      this.style.background = on ? '#fff' : '#fee2e2';
+      this.style.color = on ? '#aaa' : '#dc2626';
+      this.style.borderColor = on ? 'var(--rule)' : '#dc2626';
+      this.textContent = on ? 'Sin captura' : '⚠️ Sin captura';
+    };
+    div.appendChild(toggle);
   }
 
   const btn = document.createElement('button');
@@ -635,30 +654,73 @@ function addItem(group, label, type='number', hasNoCap=false) {
 
 function addCreditItem() {
   const list = document.getElementById('list-credito');
-  const div = document.createElement('div');
-  div.className = 'dynamic-item';
 
-  const desc = document.createElement('input');
-  desc.type = 'text';
-  desc.placeholder = 'Nombre / descripción';
-  desc.className = 'wide';
-  desc.dataset.group = 'credito-desc';
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = 'background:#faf9f7;border:1.5px solid var(--rule);border-radius:8px;padding:10px;margin-bottom:8px;display:flex;flex-direction:column;gap:8px;position:relative;';
 
-  const monto = document.createElement('input');
-  monto.type = 'number';
-  monto.step = '0.01';
-  monto.placeholder = 'S/ 0.00';
-  monto.dataset.group = 'credito-monto';
-
+  // Remove button
   const btn = document.createElement('button');
   btn.className = 'btn-remove';
   btn.textContent = '×';
-  btn.onclick = () => div.remove();
+  btn.style.cssText = 'position:absolute;top:6px;right:8px;font-size:20px;';
+  btn.onclick = () => wrapper.remove();
 
-  div.appendChild(desc);
-  div.appendChild(monto);
-  div.appendChild(btn);
-  list.appendChild(div);
+  // Row 1: Descripción + combustible
+  const row1 = document.createElement('div');
+  row1.style.cssText = 'display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding-right:24px;';
+
+  const desc = document.createElement('input');
+  desc.type = 'text';
+  desc.placeholder = 'Nombre / empresa';
+  desc.dataset.group = 'credito-desc';
+  desc.style.cssText = 'border:1.5px solid var(--rule);border-radius:6px;padding:8px 10px;font-size:14px;width:100%;';
+
+  const sel = document.createElement('select');
+  sel.dataset.group = 'credito-combustible';
+  sel.style.cssText = 'border:1.5px solid var(--rule);border-radius:6px;padding:8px 6px;font-size:13px;font-weight:600;background:#fff;min-width:100px;';
+  [['','Combustible'],['Diesel','⛽ Diesel'],['Regular','🟢 Regular'],['Premium','🟡 Premium']].forEach(([val,txt]) => {
+    const opt = document.createElement('option');
+    opt.value = val; opt.textContent = txt;
+    if (!val) opt.disabled = true;
+    sel.appendChild(opt);
+  });
+
+  row1.appendChild(desc);
+  row1.appendChild(sel);
+
+  // Row 2: Galones + Monto
+  const row2 = document.createElement('div');
+  row2.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:8px;';
+
+  const galLabel = document.createElement('div');
+  galLabel.style.cssText = 'display:flex;flex-direction:column;gap:3px;';
+  const galLbl = document.createElement('span');
+  galLbl.textContent = 'Galones (opcional)';
+  galLbl.style.cssText = 'font-size:10px;font-weight:600;color:#888;letter-spacing:.04em;';
+  const gal = document.createElement('input');
+  gal.type = 'number'; gal.step = '0.001'; gal.placeholder = '0.000';
+  gal.dataset.group = 'credito-galones';
+  gal.style.cssText = 'border:1.5px solid var(--rule);border-radius:6px;padding:8px 10px;font-size:14px;font-family:var(--mono);width:100%;';
+  galLabel.appendChild(galLbl); galLabel.appendChild(gal);
+
+  const montoLabel = document.createElement('div');
+  montoLabel.style.cssText = 'display:flex;flex-direction:column;gap:3px;';
+  const montoLbl = document.createElement('span');
+  montoLbl.textContent = 'Monto S/ (opcional)';
+  montoLbl.style.cssText = 'font-size:10px;font-weight:600;color:#888;letter-spacing:.04em;';
+  const monto = document.createElement('input');
+  monto.type = 'number'; monto.step = '0.01'; monto.placeholder = '0.00';
+  monto.dataset.group = 'credito-monto';
+  monto.style.cssText = 'border:1.5px solid var(--rule);border-radius:6px;padding:8px 10px;font-size:14px;font-family:var(--mono);width:100%;';
+  montoLabel.appendChild(montoLbl); montoLabel.appendChild(monto);
+
+  row2.appendChild(galLabel);
+  row2.appendChild(montoLabel);
+
+  wrapper.appendChild(btn);
+  wrapper.appendChild(row1);
+  wrapper.appendChild(row2);
+  list.appendChild(wrapper);
   desc.focus();
 }
 
@@ -767,132 +829,7 @@ function calcular() {
       <span class="value">${diferencia >= 0 ? '+' : ''}${fmt(diferencia)}</span>
     </div>
   `;
-
-  // Total manual comparison
-  const totalManual = parseFloat(document.getElementById('total-manual').value) || 0;
-  const diffManual = ventaTotal - totalManual;
-  const cuadraManual = Math.abs(diffManual) < 1.0;
-
-  if (totalManual > 0) {
-    body.innerHTML += `
-      <div class="divider"></div>
-      <div class="result-row ${cuadraManual ? 'diff-ok' : 'diff-fail'}">
-        <span class="label">Total ingresado por trabajador</span>
-        <span class="value">${fmt(totalManual)}</span>
-      </div>
-      <div class="result-row ${cuadraManual ? 'diff-ok' : 'diff-fail'} total">
-        <span class="label">${cuadraManual ? '✅ Total coincide con el cálculo' : '⚠️ Diferencia con total del trabajador'}</span>
-        <span class="value">${cuadraManual ? '—' : fmt(diffManual)}</span>
-      </div>
-    `;
-  }
-
   panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxvSfggDwHhV18Ophv838IicBg2TlSqZjJ44zMjR6wK0PNcCpFfiVLS8DHdIgl5s6_NjQ/exec";
-
-function getVal(id) {
-  const el = document.getElementById(id);
-  return el ? (parseFloat(el.value) || 0) : 0;
-}
-
-function sumInputs(group) {
-  return [...document.querySelectorAll(`[data-group="${group}"]`)]
-    .reduce((s, el) => s + (parseFloat(el.value) || 0), 0);
-}
-
-function getCreditos() {
-  const descs = [...document.querySelectorAll('[data-group="credito-desc"]')].map(el => el.value.trim()).filter(Boolean);
-  const montos = [...document.querySelectorAll('[data-group="credito-monto"]')].map(el => parseFloat(el.value) || 0);
-  const total = montos.reduce((s,v) => s+v, 0);
-  const detalle = descs.map((d,i) => `${d}: S/${montos[i] || 0}`).join(' | ');
-  return { total, detalle };
-}
-
-function getGastos() {
-  const descs = [...document.querySelectorAll('[data-group="gasto-desc"]')].map(el => el.value.trim()).filter(Boolean);
-  const montos = [...document.querySelectorAll('[data-group="gasto-monto"]')].map(el => parseFloat(el.value) || 0);
-  const total = montos.reduce((s,v) => s+v, 0);
-  const detalle = descs.map((d,i) => `${d}: S/${montos[i] || 0}`).join(' | ');
-  return { total, detalle };
-}
-
-async function enviar() {
-  const btn = document.querySelector('.btn-submit');
-  btn.textContent = 'Enviando...';
-  btn.disabled = true;
-
-  const creditos = getCreditos();
-  const gastos = getGastos();
-
-  const payload = {
-    fecha:         document.getElementById('fecha').value,
-    turno:         document.querySelector('input[name="turno"]:checked').value,
-    precioDiesel:  getVal('precio-diesel'),
-    precioRegular: getVal('precio-regular'),
-    precioPremium: getVal('precio-premium'),
-    s1:  getVal('s1'),  s2:  getVal('s2'),  s3:  getVal('s3'),  s4:  getVal('s4'),
-    s5:  getVal('s5'),  s6:  getVal('s6'),  s7:  getVal('s7'),  s8:  getVal('s8'),
-    s9:  getVal('s9'),  s10: getVal('s10'), s11: getVal('s11'), s12: getVal('s12'),
-    s13: getVal('s13'), s14: getVal('s14'), s15: getVal('s15'), s16: getVal('s16'),
-    efectivo:      getVal('efectivo'),
-    almuerzo:      getVal('almuerzo'),
-    visaTotal:     sumInputs('visa'),
-    depTotal:      sumInputs('dep'),
-    izipayTotal:   sumInputs('izipay'),
-    yapeTotal:     sumInputs('yape'),
-    creditosTotal: creditos.total,
-    creditosDetalle: creditos.detalle,
-    gastosTotal:   gastos.total,
-    gastosDetalle: gastos.detalle,
-    galDiesel:     getVal('gal-diesel'),
-    galRegular:    getVal('gal-regular'),
-    galPremium:    getVal('gal-premium'),
-    totalManual:   getVal('total-manual'),
-    varD1:         getVal('var-d1'),
-    varReg:        getVal('var-reg'),
-    varPrem:       getVal('var-prem'),
-    varD2:         getVal('var-d2'),
-  };
-
-  try {
-    await fetch(WEBHOOK_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
-    // Show success — hide everything except confirmation
-    document.querySelector('.container').innerHTML = `
-      <div style="
-        min-height: 80vh;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        text-align: center;
-        padding: 40px 20px;
-        gap: 20px;
-      ">
-        <div style="font-size: 64px;">✅</div>
-        <div style="font-size: 22px; font-weight: 700; color: var(--ink);">Reporte enviado</div>
-        <div style="font-size: 14px; color: #666; max-width: 280px; line-height: 1.6;">
-          El turno <strong>${payload.turno}</strong> del <strong>${payload.fecha}</strong> fue registrado correctamente.
-        </div>
-        <div style="margin-top: 20px; font-size: 12px; color: #bbb;">
-          Puedes cerrar esta página.
-        </div>
-      </div>
-    `;
-
-  } catch(err) {
-    btn.textContent = 'Error al enviar — intentar de nuevo';
-    btn.style.background = '#fee2e2';
-    btn.style.color = '#dc2626';
-    btn.disabled = false;
-  }
 }
 </script>
 </body>
