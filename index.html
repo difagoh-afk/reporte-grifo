@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reporte de Turno — Grifo</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  input[type=number]::-webkit-inner-spin-button,
+  input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type=number] { -moz-appearance: textfield; }
+
+  :root {
+    --ink:     #1a1a2e;
+    --paper:   #f5f3ee;
+    --rule:    #d4cfc4;
+    --diesel:  #2563a8;
+    --regular: #16a34a;
+    --premium: #b45309;
+    --cash:    #1a1a2e;
+    --danger:  #dc2626;
+    --ok:      #16a34a;
+    --accent:  #2563a8;
+    --input-bg:#ffffff;
+    --radius:  6px;
+    --mono:    'Courier New', monospace;
+  }
+
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    background: var(--paper);
+    color: var(--ink);
+    min-height: 100vh;
+    padding: 0 0 60px;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: var(--ink);
+    color: #fff;
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header-logo {
+    font-size: 22px;
+  }
+  .header h1 {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+  }
+  .header-sub {
+    font-size: 11px;
+    opacity: .6;
+    margin-top: 1px;
+  }
+
+  /* ── Layout ── */
+  .container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+
+  /* ── Section ── */
+  .section {
+    margin-top: 24px;
+  }
+  .section-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: #666;
+    padding: 6px 0 8px;
+    border-bottom: 2px solid var(--rule);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+  .dot-diesel  { background: var(--diesel); }
+  .dot-regular { background: var(--regular); }
+  .dot-premium { background: var(--premium); }
+  .dot-cash    { background: var(--cash); }
+  .dot-credit  { background: #7c3aed; }
+  .dot-tank    { background: #0891b2; }
+
+  /* ── Meta row ── */
+  .meta-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 20px;
+  }
+
+  /* ── Fuel grid ── */
+  .fuel-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  /* ── Field ── */
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .field label {
+    font-size: 11px;
+    font-weight: 600;
+    color: #555;
+    letter-spacing: .04em;
+  }
+  .field input[type="number"],
+  .field input[type="text"],
+  .field input[type="date"],
+  .field select,
+  .field textarea {
+    background: var(--input-bg);
+    border: 1.5px solid var(--rule);
+    border-radius: var(--radius);
+    padding: 9px 11px;
+    font-size: 15px;
+    font-family: var(--mono);
+    color: var(--ink);
+    width: 100%;
+    transition: border-color .15s;
+    -webkit-appearance: none;
+  }
+  .field input:focus,
+  .field select:focus,
+  .field textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(37,99,168,.12);
+  }
+  .field input.diesel  { border-left: 3px solid var(--diesel); }
+  .field input.regular { border-left: 3px solid var(--regular); }
+  .field input.premium { border-left: 3px solid var(--premium); }
+
+  /* ── Fuel label badge ── */
+  .fuel-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    padding: 2px 6px;
+    border-radius: 3px;
+    display: inline-block;
+    margin-bottom: 2px;
+  }
+  .fuel-label.diesel  { background: #dbeafe; color: var(--diesel); }
+  .fuel-label.regular { background: #dcfce7; color: var(--regular); }
+  .fuel-label.premium { background: #fef3c7; color: var(--premium); }
+
+  /* ── Price row ── */
+  .price-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+
+  /* ── Dynamic list ── */
+  .dynamic-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .dynamic-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .dynamic-item input {
+    flex: 1;
+    background: var(--input-bg);
+    border: 1.5px solid var(--rule);
+    border-radius: var(--radius);
+    padding: 9px 11px;
+    font-size: 15px;
+    font-family: var(--mono);
+    color: var(--ink);
+    transition: border-color .15s;
+    -webkit-appearance: none;
+  }
+  .dynamic-item input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(37,99,168,.12);
+  }
+  .dynamic-item input.wide { flex: 2; }
+  .btn-remove {
+    background: none;
+    border: none;
+    color: #bbb;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+  .btn-remove:hover { color: var(--danger); }
+  .btn-add {
+    margin-top: 6px;
+    background: none;
+    border: 1.5px dashed var(--rule);
+    border-radius: var(--radius);
+    padding: 8px;
+    width: 100%;
+    color: #888;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all .15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .btn-add:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: #f0f6ff;
+  }
+
+  /* ── Cash row ── */
+  .cash-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  /* ── Varillas ── */
+  .varilla-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  /* ── Galones summary ── */
+  .galones-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 8px;
+  }
+
+  /* ── Submit ── */
+  .submit-area {
+    margin-top: 32px;
+    padding: 20px;
+    background: var(--ink);
+    border-radius: 10px;
+    text-align: center;
+  }
+  .btn-submit {
+    background: #fff;
+    color: var(--ink);
+    border: none;
+    border-radius: var(--radius);
+    padding: 14px 40px;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: .04em;
+    cursor: pointer;
+    width: 100%;
+    transition: background .15s;
+  }
+  .btn-submit:hover { background: #e8f0ff; }
+
+  /* ── Result panel ── */
+  .result-panel {
+    display: none;
+    margin-top: 20px;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .result-header {
+    padding: 16px 20px;
+    font-size: 18px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .result-header.ok   { background: var(--ok);     color: #fff; }
+  .result-header.fail { background: var(--danger);  color: #fff; }
+  .result-body {
+    background: #fff;
+    padding: 16px 20px;
+    border: 1.5px solid var(--rule);
+    border-top: none;
+    border-radius: 0 0 10px 10px;
+  }
+  .result-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid #f0f0f0;
+    font-size: 14px;
+  }
+  .result-row:last-child { border-bottom: none; }
+  .result-row .label { color: #666; }
+  .result-row .value { font-family: var(--mono); font-weight: 600; }
+  .result-row.total .label { font-weight: 700; color: var(--ink); font-size: 15px; }
+  .result-row.total .value { font-size: 16px; }
+  .result-row.diff-ok   .value { color: var(--ok); }
+  .result-row.diff-fail .value { color: var(--danger); }
+
+  /* ── Divider ── */
+  .divider { height: 1px; background: var(--rule); margin: 16px 0; }
+
+  /* ── Turno toggle ── */
+  .turno-toggle {
+    display: flex;
+    gap: 0;
+    border: 1.5px solid var(--rule);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+  .turno-toggle label {
+    flex: 1;
+    text-align: center;
+    padding: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    background: var(--input-bg);
+    transition: all .15s;
+    color: #888;
+  }
+  .turno-toggle input[type="radio"] { display: none; }
+  .turno-toggle input:checked + label {
+    background: var(--ink);
+    color: #fff;
+  }
+
+  .note {
+    font-size: 11px;
+    color: #999;
+    margin-top: 4px;
+  }
+
+  /* No-captura checkbox */
+  .no-cap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #888;
+    cursor: pointer;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .no-cap input { width: 14px; height: 14px; cursor: pointer; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-logo">⛽</div>
+  <div>
+    <div class="header-h1" style="font-size:16px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;">Reporte de Turno</div>
+    <div class="header-sub">Grifo — Sistema de cuadre</div>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- META -->
+  <div class="section">
+    <div class="meta-row">
+      <div class="field">
+        <label>FECHA</label>
+        <input type="date" id="fecha" required>
+      </div>
+      <div class="field">
+        <label>TURNO</label>
+        <div class="turno-toggle">
+          <input type="radio" name="turno" id="t-dia" value="Día" checked>
+          <label for="t-dia">☀️ Día</label>
+          <input type="radio" name="turno" id="t-noche" value="Noche">
+          <label for="t-noche">🌙 Noche</label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRECIOS -->
+  <div class="section">
+    <div class="section-title">
+      <span class="dot dot-diesel"></span> Precios de combustible
+    </div>
+    <p class="note" style="margin-bottom:10px;">Solo cambiar si hubo variación hoy. Si no, dejar como están.</p>
+    <div class="price-row">
+      <div class="field">
+        <span class="fuel-label diesel">DIESEL</span>
+        <input type="number" step="0.01" id="precio-diesel" placeholder="0.00" value="15.50" class="diesel">
+      </div>
+      <div class="field">
+        <span class="fuel-label regular">REGULAR</span>
+        <input type="number" step="0.01" id="precio-regular" placeholder="0.00" value="15.50" class="regular">
+      </div>
+      <div class="field">
+        <span class="fuel-label premium">PREMIUM</span>
+        <input type="number" step="0.01" id="precio-premium" placeholder="0.00" value="16.50" class="premium">
+      </div>
+    </div>
+  </div>
+
+  <!-- LECTURAS SURTIDORES -->
+  <div class="section">
+    <div class="section-title">
+      <span class="dot dot-diesel"></span> Lecturas de surtidores
+    </div>
+    <p class="note" style="margin-bottom:12px;">Ingresar el valor acumulado que muestra cada máquina.</p>
+
+    <div class="fuel-grid">
+      <!-- Col izquierda -->
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div class="field"><span class="fuel-label diesel">DIESEL</span><input type="number" step="0.001" class="surtidor diesel" id="s1" placeholder="0.000"></div>
+        <div class="field"><span class="fuel-label diesel">DIESEL</span><input type="number" step="0.001" class="surtidor diesel" id="s2" placeholder="0.000"></div>
+        <div class="field"><span class="fuel-label diesel">DIESEL</span><input type="number" step="0.001" class="surtidor diesel" id="s3" placeholder="0.000"></div>
+        <div class="field"><span class="fuel-label premium">PREMIUM</span><input type="number" step="0.001" class="surtidor premium" id="s4" placeholder="0.000"></div>
+        <div class="field"><span class="fuel-label regular">REGULAR</span><input type="number" step="0.001" class="surtidor regular" id="s5" placeholder="0.000"></div>
+        <div class="field"><span class="fuel-label diesel">DIESEL</span><input type="number" step="0.001" class="surtidor diesel" id="s6" placeholder="0.000"></div>
+        <div class="field"><span class="fuel-label premium">PREMIUM</span><input type="number" step="0.001" class="surtidor premium" id="s7" placeholder="0.000"></div>
+        <div class="field"><span class="fuel-label regular">REGULAR</span><input type="number" step="0.001" class="surtidor regular" id="s8" placeholder="0.000"></div>
+      </div>
+      <!-- Col derecha -->
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div class="field"><span class="fuel-label diesel">DIESEL</span><input type="number" step="0.001" class="surtidor diesel" id="s9" placeholder="0.000"></div>
+        <div class="field"><span class="fuel-label regular">REGULAR</span><input type="number" step="0.001" class="surtidor regular" id="s10" placeholder="0.000"></div>
+        <div class="field"><span class="fuel-label premium">PREMIUM</span><input type="number" step="0.001" class="surtidor premium" id="s11" placeholder="0.000"></div>
+        <div class="field"><span class="fuel-label diesel">DIESEL</span><input type="number" step="0.001" class="surtidor diesel" id="s12" placeholder="0.000"></div>
+        <div class="field"><span class="fuel-label diesel">DIESEL</span><input type="number" step="0.001" class="surtidor diesel" id="s13" placeholder="0.000"></div>
+        <div class="field"><span class="fuel-label regular">REGULAR</span><input type="number" step="0.001" class="surtidor regular" id="s14" placeholder="0.000"></div>
+        <div class="field"><span class="fuel-label premium">PREMIUM</span><input type="number" step="0.001" class="surtidor premium" id="s15" placeholder="0.000"></div>
+        <div class="field"><span class="fuel-label diesel">DIESEL</span><input type="number" step="0.001" class="surtidor diesel" id="s16" placeholder="0.000"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EFECTIVO Y ALMUERZO -->
+  <div class="section">
+    <div class="section-title">
+      <span class="dot dot-cash"></span> Efectivo y gastos
+    </div>
+    <div class="cash-row">
+      <div class="field">
+        <label>EFECTIVO S/</label>
+        <input type="number" step="0.01" id="efectivo" placeholder="0.00">
+      </div>
+      <div class="field">
+        <label>ALMUERZO S/</label>
+        <input type="number" step="0.01" id="almuerzo" placeholder="0.00">
+      </div>
+    </div>
+  </div>
+
+  <!-- VISA -->
+  <div class="section">
+    <div class="section-title">
+      <span class="dot dot-cash"></span> Pagos con Visa / Tarjeta
+    </div>
+    <div class="dynamic-list" id="list-visa"></div>
+    <button class="btn-add" onclick="addItem('visa','Visa','number')">+ Agregar pago</button>
+  </div>
+
+  <!-- DEPÓSITO -->
+  <div class="section">
+    <div class="section-title">
+      <span class="dot dot-cash"></span> Depósitos bancarios
+    </div>
+    <div class="dynamic-list" id="list-dep"></div>
+    <button class="btn-add" onclick="addItem('dep','Depósito','number')">+ Agregar depósito</button>
+  </div>
+
+  <!-- IZIPAY -->
+  <div class="section">
+    <div class="section-title">
+      <span class="dot dot-cash"></span> Pagos QR Izipay
+    </div>
+    <div class="dynamic-list" id="list-izipay"></div>
+    <button class="btn-add" onclick="addItem('izipay','Izipay','number',true)">+ Agregar pago</button>
+  </div>
+
+  <!-- YAPE -->
+  <div class="section">
+    <div class="section-title">
+      <span class="dot dot-cash"></span> Pagos a Yape BCP
+    </div>
+    <div class="dynamic-list" id="list-yape"></div>
+    <button class="btn-add" onclick="addItem('yape','Yape','number',true)">+ Agregar pago</button>
+  </div>
+
+  <!-- CRÉDITOS -->
+  <div class="section">
+    <div class="section-title">
+      <span class="dot dot-credit"></span> Créditos
+    </div>
+    <div class="dynamic-list" id="list-credito"></div>
+    <button class="btn-add" onclick="addCreditItem()">+ Agregar crédito</button>
+  </div>
+
+  <!-- GASTOS EXTRA -->
+  <div class="section">
+    <div class="section-title">
+      <span class="dot dot-cash"></span> Gastos extra
+    </div>
+    <div class="dynamic-list" id="list-gasto"></div>
+    <button class="btn-add" onclick="addGastoItem()">+ Agregar gasto</button>
+  </div>
+
+  <!-- VARILLAS -->
+  <div class="section">
+    <div class="section-title">
+      <span class="dot dot-tank"></span> Varillas
+    </div>
+    <p class="note" style="margin-bottom:10px;">Valor leído en la varilla de cada tanque subterráneo.</p>
+    <div class="varilla-grid">
+      <div class="field">
+        <span class="fuel-label diesel">DIESEL 1</span>
+        <input type="number" step="0.1" id="var-d1" placeholder="0.0">
+      </div>
+      <div class="field">
+        <span class="fuel-label regular">REGULAR</span>
+        <input type="number" step="0.1" id="var-reg" placeholder="0.0">
+      </div>
+      <div class="field">
+        <span class="fuel-label premium">PREMIUM</span>
+        <input type="number" step="0.1" id="var-prem" placeholder="0.0">
+      </div>
+      <div class="field">
+        <span class="fuel-label diesel">DIESEL 2</span>
+        <input type="number" step="0.1" id="var-d2" placeholder="0.0">
+      </div>
+    </div>
+  </div>
+
+  <!-- GALONES (calculados por trabajadores) -->
+  <div class="section">
+    <div class="section-title">
+      <span class="dot dot-diesel"></span> Galones vendidos
+    </div>
+    <p class="note" style="margin-bottom:10px;">Total de galones que calcularon en el reporte escrito.</p>
+    <div class="galones-grid">
+      <div class="field">
+        <span class="fuel-label diesel">DIESEL</span>
+        <input type="number" step="0.001" id="gal-diesel" placeholder="0.000" class="diesel">
+      </div>
+      <div class="field">
+        <span class="fuel-label regular">REGULAR</span>
+        <input type="number" step="0.001" id="gal-regular" placeholder="0.000" class="regular">
+      </div>
+      <div class="field">
+        <span class="fuel-label premium">PREMIUM</span>
+        <input type="number" step="0.001" id="gal-premium" placeholder="0.000" class="premium">
+      </div>
+    </div>
+  </div>
+
+
+  <!-- TOTAL MANUAL -->
+  <div class="section">
+    <div class="section-title">
+      <span class="dot dot-cash"></span> Total venta del turno
+    </div>
+    <p class="note" style="margin-bottom:10px;">El valor total que calcularon a mano en el reporte. El sistema verificará que coincida.</p>
+    <div class="field">
+      <label>TOTAL S/ (sin descontar gastos ni créditos)</label>
+      <input type="number" step="0.01" id="total-manual" placeholder="0.00" style="font-size:18px;font-weight:700;border-left:3px solid var(--cash);">
+    </div>
+  </div>
+
+  <!-- SUBMIT -->
+  <div class="submit-area">
+    <button class="btn-submit" onclick="enviar()">ENVIAR REPORTE</button>
+  </div>
+
+  <!-- RESULT -->
+  <div class="result-panel" id="result-panel" style="display:none">
+    <div class="result-header" id="result-header"></div>
+    <div class="result-body" id="result-body"></div>
+  </div>
+
+</div>
+
+<script>
+// Set today's date
+document.getElementById('fecha').valueAsDate = new Date();
+
+// ── Dynamic list helpers ──────────────────────────────────────
+function addItem(group, label, type='number', hasNoCap=false) {
+  const list = document.getElementById('list-' + group);
+  const idx = list.children.length + 1;
+  const div = document.createElement('div');
+  div.className = 'dynamic-item';
+
+  const inp = document.createElement('input');
+  inp.type = type;
+  if (type === 'number') { inp.step = '0.01'; inp.placeholder = '0.00'; }
+  inp.dataset.group = group;
+  div.appendChild(inp);
+
+  if (hasNoCap) {
+    const lbl = document.createElement('label');
+    lbl.className = 'no-cap';
+    const cb = document.createElement('input');
+    cb.type = 'checkbox';
+    lbl.appendChild(cb);
+    lbl.appendChild(document.createTextNode('Sin cap.'));
+    div.appendChild(lbl);
+  }
+
+  const btn = document.createElement('button');
+  btn.className = 'btn-remove';
+  btn.textContent = '×';
+  btn.onclick = () => div.remove();
+  div.appendChild(btn);
+
+  list.appendChild(div);
+  inp.focus();
+}
+
+function addCreditItem() {
+  const list = document.getElementById('list-credito');
+  const div = document.createElement('div');
+  div.className = 'dynamic-item';
+
+  const desc = document.createElement('input');
+  desc.type = 'text';
+  desc.placeholder = 'Nombre / descripción';
+  desc.className = 'wide';
+  desc.dataset.group = 'credito-desc';
+
+  const monto = document.createElement('input');
+  monto.type = 'number';
+  monto.step = '0.01';
+  monto.placeholder = 'S/ 0.00';
+  monto.dataset.group = 'credito-monto';
+
+  const btn = document.createElement('button');
+  btn.className = 'btn-remove';
+  btn.textContent = '×';
+  btn.onclick = () => div.remove();
+
+  div.appendChild(desc);
+  div.appendChild(monto);
+  div.appendChild(btn);
+  list.appendChild(div);
+  desc.focus();
+}
+
+function addGastoItem() {
+  const list = document.getElementById('list-gasto');
+  const div = document.createElement('div');
+  div.className = 'dynamic-item';
+
+  const desc = document.createElement('input');
+  desc.type = 'text';
+  desc.placeholder = 'Descripción del gasto';
+  desc.className = 'wide';
+  desc.dataset.group = 'gasto-desc';
+
+  const monto = document.createElement('input');
+  monto.type = 'number';
+  monto.step = '0.01';
+  monto.placeholder = 'S/ 0.00';
+  monto.dataset.group = 'gasto-monto';
+
+  const btn = document.createElement('button');
+  btn.className = 'btn-remove';
+  btn.textContent = '×';
+  btn.onclick = () => div.remove();
+
+  div.appendChild(desc);
+  div.appendChild(monto);
+  div.appendChild(btn);
+  list.appendChild(div);
+  desc.focus();
+}
+
+// ── Helpers ──────────────────────────────────────────────────
+function sumGroup(group) {
+  return [...document.querySelectorAll(`[data-group="${group}"]`)]
+    .reduce((s, el) => s + (parseFloat(el.value) || 0), 0);
+}
+
+function fmt(n) {
+  return 'S/ ' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+}
+
+// ── Calcular ─────────────────────────────────────────────────
+function calcular() {
+  const pD = parseFloat(document.getElementById('precio-diesel').value)  || 0;
+  const pR = parseFloat(document.getElementById('precio-regular').value) || 0;
+  const pP = parseFloat(document.getElementById('precio-premium').value) || 0;
+
+  // Lecturas surtidores
+  const vals = [...document.querySelectorAll('.surtidor')].map(el => parseFloat(el.value) || 0);
+
+  // Galones trabajador
+  const galD = parseFloat(document.getElementById('gal-diesel').value)   || 0;
+  const galR = parseFloat(document.getElementById('gal-regular').value)  || 0;
+  const galP = parseFloat(document.getElementById('gal-premium').value)  || 0;
+
+  // Venta según trabajador
+  const ventaD = galD * pD;
+  const ventaR = galR * pR;
+  const ventaP = galP * pP;
+  const ventaTotal = ventaD + ventaR + ventaP;
+
+  // Pagos recibidos
+  const efectivo = parseFloat(document.getElementById('efectivo').value) || 0;
+  const almuerzo = parseFloat(document.getElementById('almuerzo').value) || 0;
+  const visa     = sumGroup('visa');
+  const dep      = sumGroup('dep');
+  const izipay   = sumGroup('izipay');
+  const yape     = sumGroup('yape');
+  const creditos = sumGroup('credito-monto');
+  const gastos   = sumGroup('gasto-monto');
+
+  const totalCobrado = efectivo + visa + dep + izipay + yape + creditos - almuerzo - gastos;
+  const diferencia   = ventaTotal - totalCobrado;
+  const cuadra       = Math.abs(diferencia) < 1.0;
+
+  // Render
+  const panel  = document.getElementById('result-panel');
+  const header = document.getElementById('result-header');
+  const body   = document.getElementById('result-body');
+
+  panel.style.display = 'block';
+  header.className = 'result-header ' + (cuadra ? 'ok' : 'fail');
+  header.innerHTML = cuadra
+    ? '✅ CUADRE CORRECTO'
+    : '❌ HAY UNA DIFERENCIA DE ' + fmt(Math.abs(diferencia));
+
+  body.innerHTML = `
+    <div class="result-row"><span class="label">Venta Diesel (${galD} gal × S/${pD})</span><span class="value">${fmt(ventaD)}</span></div>
+    <div class="result-row"><span class="label">Venta Regular (${galR} gal × S/${pR})</span><span class="value">${fmt(ventaR)}</span></div>
+    <div class="result-row"><span class="label">Venta Premium (${galP} gal × S/${pP})</span><span class="value">${fmt(ventaP)}</span></div>
+    <div class="result-row total"><span class="label">TOTAL BRUTO (galones × precio)</span><span class="value">${fmt(ventaTotal)}</span></div>
+    <div class="divider"></div>
+    <div class="result-row"><span class="label">Efectivo</span><span class="value">${fmt(efectivo)}</span></div>
+    <div class="result-row"><span class="label">Visa / Tarjeta</span><span class="value">${fmt(visa)}</span></div>
+    <div class="result-row"><span class="label">Depósitos</span><span class="value">${fmt(dep)}</span></div>
+    <div class="result-row"><span class="label">QR Izipay</span><span class="value">${fmt(izipay)}</span></div>
+    <div class="result-row"><span class="label">Yape BCP</span><span class="value">${fmt(yape)}</span></div>
+    <div class="result-row"><span class="label">Créditos</span><span class="value">${fmt(creditos)}</span></div>
+    <div class="result-row"><span class="label">Almuerzo (descuento)</span><span class="value">− ${fmt(almuerzo)}</span></div>
+    <div class="result-row"><span class="label">Gastos extra (descuento)</span><span class="value">− ${fmt(gastos)}</span></div>
+    <div class="divider"></div>
+    <div class="result-row total"><span class="label">TOTAL COBRADO</span><span class="value">${fmt(totalCobrado)}</span></div>
+    <div class="result-row ${cuadra ? 'diff-ok' : 'diff-fail'} total">
+      <span class="label">DIFERENCIA</span>
+      <span class="value">${diferencia >= 0 ? '+' : ''}${fmt(diferencia)}</span>
+    </div>
+  `;
+
+  // Total manual comparison
+  const totalManual = parseFloat(document.getElementById('total-manual').value) || 0;
+  const diffManual = ventaTotal - totalManual;
+  const cuadraManual = Math.abs(diffManual) < 1.0;
+
+  if (totalManual > 0) {
+    body.innerHTML += `
+      <div class="divider"></div>
+      <div class="result-row ${cuadraManual ? 'diff-ok' : 'diff-fail'}">
+        <span class="label">Total ingresado por trabajador</span>
+        <span class="value">${fmt(totalManual)}</span>
+      </div>
+      <div class="result-row ${cuadraManual ? 'diff-ok' : 'diff-fail'} total">
+        <span class="label">${cuadraManual ? '✅ Total coincide con el cálculo' : '⚠️ Diferencia con total del trabajador'}</span>
+        <span class="value">${cuadraManual ? '—' : fmt(diffManual)}</span>
+      </div>
+    `;
+  }
+
+  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxvSfggDwHhV18Ophv838IicBg2TlSqZjJ44zMjR6wK0PNcCpFfiVLS8DHdIgl5s6_NjQ/exec";
+
+function getVal(id) {
+  const el = document.getElementById(id);
+  return el ? (parseFloat(el.value) || 0) : 0;
+}
+
+function sumInputs(group) {
+  return [...document.querySelectorAll(`[data-group="${group}"]`)]
+    .reduce((s, el) => s + (parseFloat(el.value) || 0), 0);
+}
+
+function getCreditos() {
+  const descs = [...document.querySelectorAll('[data-group="credito-desc"]')].map(el => el.value.trim()).filter(Boolean);
+  const montos = [...document.querySelectorAll('[data-group="credito-monto"]')].map(el => parseFloat(el.value) || 0);
+  const total = montos.reduce((s,v) => s+v, 0);
+  const detalle = descs.map((d,i) => `${d}: S/${montos[i] || 0}`).join(' | ');
+  return { total, detalle };
+}
+
+function getGastos() {
+  const descs = [...document.querySelectorAll('[data-group="gasto-desc"]')].map(el => el.value.trim()).filter(Boolean);
+  const montos = [...document.querySelectorAll('[data-group="gasto-monto"]')].map(el => parseFloat(el.value) || 0);
+  const total = montos.reduce((s,v) => s+v, 0);
+  const detalle = descs.map((d,i) => `${d}: S/${montos[i] || 0}`).join(' | ');
+  return { total, detalle };
+}
+
+async function enviar() {
+  const btn = document.querySelector('.btn-submit');
+  btn.textContent = 'Enviando...';
+  btn.disabled = true;
+
+  const creditos = getCreditos();
+  const gastos = getGastos();
+
+  const payload = {
+    fecha:         document.getElementById('fecha').value,
+    turno:         document.querySelector('input[name="turno"]:checked').value,
+    precioDiesel:  getVal('precio-diesel'),
+    precioRegular: getVal('precio-regular'),
+    precioPremium: getVal('precio-premium'),
+    s1:  getVal('s1'),  s2:  getVal('s2'),  s3:  getVal('s3'),  s4:  getVal('s4'),
+    s5:  getVal('s5'),  s6:  getVal('s6'),  s7:  getVal('s7'),  s8:  getVal('s8'),
+    s9:  getVal('s9'),  s10: getVal('s10'), s11: getVal('s11'), s12: getVal('s12'),
+    s13: getVal('s13'), s14: getVal('s14'), s15: getVal('s15'), s16: getVal('s16'),
+    efectivo:      getVal('efectivo'),
+    almuerzo:      getVal('almuerzo'),
+    visaTotal:     sumInputs('visa'),
+    depTotal:      sumInputs('dep'),
+    izipayTotal:   sumInputs('izipay'),
+    yapeTotal:     sumInputs('yape'),
+    creditosTotal: creditos.total,
+    creditosDetalle: creditos.detalle,
+    gastosTotal:   gastos.total,
+    gastosDetalle: gastos.detalle,
+    galDiesel:     getVal('gal-diesel'),
+    galRegular:    getVal('gal-regular'),
+    galPremium:    getVal('gal-premium'),
+    totalManual:   getVal('total-manual'),
+    varD1:         getVal('var-d1'),
+    varReg:        getVal('var-reg'),
+    varPrem:       getVal('var-prem'),
+    varD2:         getVal('var-d2'),
+  };
+
+  try {
+    await fetch(WEBHOOK_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    // Show success — hide everything except confirmation
+    document.querySelector('.container').innerHTML = `
+      <div style="
+        min-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 40px 20px;
+        gap: 20px;
+      ">
+        <div style="font-size: 64px;">✅</div>
+        <div style="font-size: 22px; font-weight: 700; color: var(--ink);">Reporte enviado</div>
+        <div style="font-size: 14px; color: #666; max-width: 280px; line-height: 1.6;">
+          El turno <strong>${payload.turno}</strong> del <strong>${payload.fecha}</strong> fue registrado correctamente.
+        </div>
+        <div style="margin-top: 20px; font-size: 12px; color: #bbb;">
+          Puedes cerrar esta página.
+        </div>
+      </div>
+    `;
+
+  } catch(err) {
+    btn.textContent = 'Error al enviar — intentar de nuevo';
+    btn.style.background = '#fee2e2';
+    btn.style.color = '#dc2626';
+    btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>
