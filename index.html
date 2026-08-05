@@ -954,45 +954,93 @@ function addGalonerItem() {
   list.appendChild(wrapper); gal.focus();
 }
 
+function buildPagos() {
+  const pagos = [];
+
+  // Visa
+  document.querySelectorAll('[data-group="visa"]').forEach(el => {
+    const m = parseFloat(el.value) || 0;
+    if (m) pagos.push({ tipo: "Visa", monto: m, sinCaptura: false });
+  });
+
+  // Deposito
+  document.querySelectorAll('[data-group="dep"]').forEach(el => {
+    const m = parseFloat(el.value) || 0;
+    if (m) pagos.push({ tipo: "Deposito", monto: m, sinCaptura: false });
+  });
+
+  // Izipay
+  const izipayInputs  = [...document.querySelectorAll('[data-group="izipay"]')];
+  const izipayNoCaps  = [...document.querySelectorAll('[data-group="izipay-nocap"]')];
+  izipayInputs.forEach((el, i) => {
+    const m = parseFloat(el.value) || 0;
+    if (m) pagos.push({
+      tipo: "Izipay",
+      monto: m,
+      sinCaptura: izipayNoCaps[i]?.dataset.active === 'true'
+    });
+  });
+
+  // Yape
+  const yapeInputs  = [...document.querySelectorAll('[data-group="yape"]')];
+  const yapeNoCaps  = [...document.querySelectorAll('[data-group="yape-nocap"]')];
+  yapeInputs.forEach((el, i) => {
+    const m = parseFloat(el.value) || 0;
+    if (m) pagos.push({
+      tipo: "Yape",
+      monto: m,
+      sinCaptura: yapeNoCaps[i]?.dataset.active === 'true'
+    });
+  });
+
+  return pagos;
+}
+
 async function enviar() {
   const btn = document.querySelector('.btn-submit');
   btn.textContent = 'Enviando...';
   btn.disabled = true;
+
   const creditos = getCreditos();
+  const pagos    = buildPagos();
+
+  // Totals from individual payments
+  const visaTotal   = pagos.filter(p=>p.tipo==='Visa').reduce((s,p)=>s+p.monto,0);
+  const depTotal    = pagos.filter(p=>p.tipo==='Deposito').reduce((s,p)=>s+p.monto,0);
+  const izipayTotal = pagos.filter(p=>p.tipo==='Izipay').reduce((s,p)=>s+p.monto,0);
+  const yapeTotal   = pagos.filter(p=>p.tipo==='Yape').reduce((s,p)=>s+p.monto,0);
+
   const payload = {
     fecha: document.getElementById('fecha').value,
     turno: document.querySelector('input[name="turno"]:checked').value,
-    precioDiesel: getVal('precio-diesel'),
+    precioDiesel:  getVal('precio-diesel'),
     precioRegular: getVal('precio-regular'),
     precioPremium: getVal('precio-premium'),
-    s1: getVal('s1'), s2: getVal('s2'), s3: getVal('s3'), s4: getVal('s4'),
-    s5: getVal('s5'), s6: getVal('s6'), s7: getVal('s7'), s8: getVal('s8'),
-    s9: getVal('s9'), s10: getVal('s10'), s11: getVal('s11'), s12: getVal('s12'),
+    s1:  getVal('s1'),  s2:  getVal('s2'),  s3:  getVal('s3'),  s4:  getVal('s4'),
+    s5:  getVal('s5'),  s6:  getVal('s6'),  s7:  getVal('s7'),  s8:  getVal('s8'),
+    s9:  getVal('s9'),  s10: getVal('s10'), s11: getVal('s11'), s12: getVal('s12'),
     s13: getVal('s13'), s14: getVal('s14'), s15: getVal('s15'), s16: getVal('s16'),
-    efectivo: getVal('efectivo'),
-    almuerzo: getVal('almuerzo'),
-    visaTotal: sumInputs('visa'),
-    depTotal: sumInputs('dep'),
-    izipayTotal: sumInputs('izipay'),
-    izipayNoCap: [...document.querySelectorAll('[data-group="izipay-nocap"]')].filter(el => el.dataset.active === 'true').length,
-    yapeTotal: sumInputs('yape'),
-    yapeNoCap: [...document.querySelectorAll('[data-group="yape-nocap"]')].filter(el => el.dataset.active === 'true').length,
-    creditosTotal: creditos.total,
+    efectivo:       getVal('efectivo'),
+    almuerzo:       getVal('almuerzo'),
+    visaTotal, depTotal, izipayTotal, yapeTotal,
+    creditosTotal:   creditos.total,
     creditosDetalle: creditos.detalle,
-    gastosTotal: sumInputs('gasto-monto'),
-    gastosDetalle: [...document.querySelectorAll('[data-group="gasto-desc"]')].map((el,i)=>{const m=document.querySelectorAll('[data-group="gasto-monto"]');return el.value?el.value+' S/'+(parseFloat(m[i]?.value)||0):''}).filter(Boolean).join(' | '),
-    galDiesel: getVal('gal-diesel'),
+    gastosTotal:  [...document.querySelectorAll('[data-group="gasto-monto"]')].reduce((s,el)=>s+(parseFloat(el.value)||0),0),
+    gastosDetalle:[...document.querySelectorAll('[data-group="gasto-desc"]')].map((el,i)=>{const m=document.querySelectorAll('[data-group="gasto-monto"]');return el.value?el.value+' S/'+(parseFloat(m[i]?.value)||0):''}).filter(Boolean).join(' | '),
+    galDiesel:  getVal('gal-diesel'),
     galRegular: getVal('gal-regular'),
     galPremium: getVal('gal-premium'),
-    varD1: getVal('var-d1'),
+    varD1:  getVal('var-d1'),
     varReg: getVal('var-reg'),
-    varPrem: getVal('var-prem'),
-    varD2: getVal('var-d2'),
-    gasTotal: [...document.querySelectorAll('[data-group="gas-monto"]')].reduce((s,el)=>s+(parseFloat(el.value)||0),0),
+    varPrem:getVal('var-prem'),
+    varD2:  getVal('var-d2'),
+    gasTotal:   [...document.querySelectorAll('[data-group="gas-monto"]')].reduce((s,el)=>s+(parseFloat(el.value)||0),0),
     gasDetalle: [...document.querySelectorAll('[data-group="gas-tipo"]')].map((el,i)=>{const m=document.querySelectorAll('[data-group="gas-monto"]');return el.value?el.value+' S/'+(parseFloat(m[i]?.value)||0):''}).filter(Boolean).join(' | '),
-    galoneraTotal: [...document.querySelectorAll('[data-group="galonera-monto"]')].reduce((s,el)=>s+(parseFloat(el.value)||0),0),
+    galoneraTotal:   [...document.querySelectorAll('[data-group="galonera-monto"]')].reduce((s,el)=>s+(parseFloat(el.value)||0),0),
     galoneraDetalle: [...document.querySelectorAll('[data-group="galonera-desc"]')].map((el,i)=>{const m=document.querySelectorAll('[data-group="galonera-monto"]');return el.value?el.value+' S/'+(parseFloat(m[i]?.value)||0):''}).filter(Boolean).join(' | '),
+    pagos,
   };
+
   try {
     await fetch(WEBHOOK_URL, {
       method: 'POST',
