@@ -513,16 +513,6 @@
     <button class="btn-add" onclick="addCreditItem()">+ Agregar crédito</button>
   </div>
 
-  <!-- GAS -->
-  <div class="section">
-    <div class="section-title">
-      <span class="dot" style="background:#f59e0b;"></span> Venta de Gas
-    </div>
-    <p class="note" style="margin-bottom:10px;">Registrar ventas de gas del turno. No afecta el cuadre del grifo.</p>
-    <div class="dynamic-list" id="list-gas"></div>
-    <button class="btn-add" onclick="addGasItem()">+ Agregar venta de gas</button>
-  </div>
-
   <!-- GASTOS EXTRA -->
   <div class="section">
     <div class="section-title">
@@ -537,10 +527,9 @@
     <div class="section-title">
       <span class="dot dot-tank"></span> Varillas
     </div>
-    <p class="note" style="margin-bottom:10px;">Valor leído en la varilla de cada tanque subterráneo.</p>
-    <div class="varilla-grid">
+        <div style="display:flex;flex-direction:column;gap:8px;">
       <div class="field">
-        <span class="fuel-label diesel">DIESEL 1</span>
+        <span class="fuel-label diesel">DIESEL</span>
         <input type="number" step="0.1" id="var-d1" placeholder="0.0">
       </div>
       <div class="field">
@@ -552,7 +541,7 @@
         <input type="number" step="0.1" id="var-prem" placeholder="0.0">
       </div>
       <div class="field">
-        <span class="fuel-label diesel">DIESEL 2</span>
+        <span class="fuel-label diesel">DIESEL</span>
         <input type="number" step="0.1" id="var-d2" placeholder="0.0">
       </div>
     </div>
@@ -563,8 +552,7 @@
     <div class="section-title">
       <span class="dot dot-diesel"></span> Galones vendidos
     </div>
-    <p class="note" style="margin-bottom:10px;">Total de galones que calcularon en el reporte escrito.</p>
-    <div class="galones-grid">
+        <div style="display:flex;flex-direction:column;gap:8px;">
       <div class="field">
         <span class="fuel-label diesel">DIESEL</span>
         <input type="number" step="0.001" id="gal-diesel" placeholder="0.000" class="diesel">
@@ -580,6 +568,24 @@
     </div>
   </div>
 
+
+  <!-- GAS -->
+  <div class="section">
+    <div class="section-title">
+      <span class="dot" style="background:#f59e0b;"></span> Venta de Gas
+    </div>
+        <div class="dynamic-list" id="list-gas"></div>
+    <button class="btn-add" onclick="addGasItem()">+ Agregar venta de gas</button>
+  </div>
+
+  <!-- GALONERAS -->
+  <div class="section">
+    <div class="section-title">
+      <span class="dot" style="background:#0891b2;"></span> Venta de Galoneras
+    </div>
+    <div class="dynamic-list" id="list-galonera"></div>
+    <button class="btn-add" onclick="addGalonerItem()">+ Agregar venta de galonera</button>
+  </div>
 
   <!-- SUBMIT -->
   <div class="submit-area">
@@ -688,34 +694,53 @@ function addCreditItem() {
   row1.appendChild(desc);
   row1.appendChild(sel);
 
-  // Row 2: Galones + Monto
+  // Row 2: Toggle galones/monto + single input
   const row2 = document.createElement('div');
-  row2.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:8px;';
+  row2.style.cssText = 'display:flex;flex-direction:column;gap:6px;';
 
-  const galLabel = document.createElement('div');
-  galLabel.style.cssText = 'display:flex;flex-direction:column;gap:3px;';
-  const galLbl = document.createElement('span');
-  galLbl.textContent = 'Galones (opcional)';
-  galLbl.style.cssText = 'font-size:10px;font-weight:600;color:#888;letter-spacing:.04em;';
-  const gal = document.createElement('input');
-  gal.type = 'number'; gal.step = '0.001'; gal.placeholder = '0.000';
-  gal.dataset.group = 'credito-galones';
-  gal.style.cssText = 'border:1.5px solid var(--rule);border-radius:6px;padding:8px 10px;font-size:14px;font-family:var(--mono);width:100%;';
-  galLabel.appendChild(galLbl); galLabel.appendChild(gal);
+  // Toggle buttons
+  const toggleRow = document.createElement('div');
+  toggleRow.style.cssText = 'display:flex;gap:0;border:1.5px solid var(--rule);border-radius:6px;overflow:hidden;width:fit-content;';
 
-  const montoLabel = document.createElement('div');
-  montoLabel.style.cssText = 'display:flex;flex-direction:column;gap:3px;';
-  const montoLbl = document.createElement('span');
-  montoLbl.textContent = 'Monto S/ (opcional)';
-  montoLbl.style.cssText = 'font-size:10px;font-weight:600;color:#888;letter-spacing:.04em;';
+  const btnGal = document.createElement('button');
+  btnGal.type = 'button'; btnGal.textContent = 'Galones';
+  btnGal.style.cssText = 'padding:6px 14px;font-size:12px;font-weight:600;border:none;cursor:pointer;background:var(--ink);color:#fff;';
+  btnGal.dataset.mode = 'galones';
+
+  const btnMonto = document.createElement('button');
+  btnMonto.type = 'button'; btnMonto.textContent = 'Monto S/';
+  btnMonto.style.cssText = 'padding:6px 14px;font-size:12px;font-weight:600;border:none;cursor:pointer;background:#fff;color:#aaa;';
+  btnMonto.dataset.mode = 'monto';
+
+  const inp = document.createElement('input');
+  inp.type = 'number'; inp.step = '0.001'; inp.placeholder = '0.000';
+  inp.dataset.group = 'credito-galones';
+  inp.style.cssText = 'border:1.5px solid var(--rule);border-radius:6px;padding:8px 10px;font-size:15px;font-family:var(--mono);width:100%;';
+
   const monto = document.createElement('input');
   monto.type = 'number'; monto.step = '0.01'; monto.placeholder = '0.00';
   monto.dataset.group = 'credito-monto';
-  monto.style.cssText = 'border:1.5px solid var(--rule);border-radius:6px;padding:8px 10px;font-size:14px;font-family:var(--mono);width:100%;';
-  montoLabel.appendChild(montoLbl); montoLabel.appendChild(monto);
+  monto.style.cssText = 'display:none;border:1.5px solid var(--rule);border-radius:6px;padding:8px 10px;font-size:15px;font-family:var(--mono);width:100%;';
 
-  row2.appendChild(galLabel);
-  row2.appendChild(montoLabel);
+  function setMode(mode) {
+    if (mode === 'galones') {
+      btnGal.style.background = 'var(--ink)'; btnGal.style.color = '#fff';
+      btnMonto.style.background = '#fff'; btnMonto.style.color = '#aaa';
+      inp.style.display = ''; monto.style.display = 'none';
+    } else {
+      btnMonto.style.background = 'var(--ink)'; btnMonto.style.color = '#fff';
+      btnGal.style.background = '#fff'; btnGal.style.color = '#aaa';
+      monto.style.display = ''; inp.style.display = 'none';
+    }
+  }
+  btnGal.onclick = () => setMode('galones');
+  btnMonto.onclick = () => setMode('monto');
+
+  toggleRow.appendChild(btnGal);
+  toggleRow.appendChild(btnMonto);
+  row2.appendChild(toggleRow);
+  row2.appendChild(inp);
+  row2.appendChild(monto);
 
   wrapper.appendChild(btn);
   wrapper.appendChild(row1);
@@ -830,6 +855,166 @@ function calcular() {
     </div>
   `;
   panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxvSfggDwHhV18Ophv838IicBg2TlSqZjJ44zMjR6wK0PNcCpFfiVLS8DHdIgl5s6_NjQ/exec";
+
+function getVal(id) {
+  const el = document.getElementById(id);
+  return el ? (parseFloat(el.value) || 0) : 0;
+}
+
+function sumInputs(group) {
+  return [...document.querySelectorAll('[data-group="' + group + '"]')]
+    .reduce((s, el) => s + (parseFloat(el.value) || 0), 0);
+}
+
+function getCreditos() {
+  const descs = [...document.querySelectorAll('[data-group="credito-desc"]')].map(el => el.value.trim());
+  const combs = [...document.querySelectorAll('[data-group="credito-combustible"]')].map(el => el.value);
+  const galones = [...document.querySelectorAll('[data-group="credito-galones"]')].map(el => parseFloat(el.value) || 0);
+  const montos = [...document.querySelectorAll('[data-group="credito-monto"]')].map(el => parseFloat(el.value) || 0);
+  const total = montos.reduce((s, v) => s + v, 0);
+  const detalle = descs.map((d, i) => {
+    let p = [d, combs[i]].filter(Boolean).join(' - ');
+    if (galones[i]) p += ' ' + galones[i] + 'gal';
+    if (montos[i]) p += ' S/' + montos[i];
+    return p;
+  }).filter(Boolean).join(' | ');
+  return { total, detalle };
+}
+
+function addGasItem() {
+  const list = document.getElementById('list-gas');
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = 'background:#fffbeb;border:1.5px solid #fde68a;border-radius:8px;padding:10px;margin-bottom:8px;display:flex;flex-direction:column;gap:8px;position:relative;';
+  const btn = document.createElement('button');
+  btn.type = 'button'; btn.className = 'btn-remove'; btn.textContent = '×';
+  btn.style.cssText = 'position:absolute;top:6px;right:8px;font-size:20px;';
+  btn.onclick = () => wrapper.remove();
+  const row = document.createElement('div');
+  row.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-right:24px;';
+  const tipoLabel = document.createElement('div');
+  tipoLabel.style.cssText = 'display:flex;flex-direction:column;gap:3px;';
+  const tipoLbl = document.createElement('span');
+  tipoLbl.textContent = 'Tipo de gas';
+  tipoLbl.style.cssText = 'font-size:10px;font-weight:600;color:#888;letter-spacing:.04em;';
+  const tipo = document.createElement('input');
+  tipo.type = 'text'; tipo.placeholder = 'Ej: Solgas, Gas economico';
+  tipo.dataset.group = 'gas-tipo';
+  tipo.style.cssText = 'border:1.5px solid #fde68a;border-radius:6px;padding:8px 10px;font-size:14px;width:100%;background:#fff;';
+  tipoLabel.appendChild(tipoLbl); tipoLabel.appendChild(tipo);
+  const montoLabel = document.createElement('div');
+  montoLabel.style.cssText = 'display:flex;flex-direction:column;gap:3px;';
+  const montoLbl = document.createElement('span');
+  montoLbl.textContent = 'Monto S/';
+  montoLbl.style.cssText = 'font-size:10px;font-weight:600;color:#888;letter-spacing:.04em;';
+  const monto = document.createElement('input');
+  monto.type = 'number'; monto.step = '0.01'; monto.placeholder = '0.00';
+  monto.dataset.group = 'gas-monto';
+  monto.style.cssText = 'border:1.5px solid #fde68a;border-radius:6px;padding:8px 10px;font-size:14px;font-family:var(--mono);width:100%;background:#fff;';
+  montoLabel.appendChild(montoLbl); montoLabel.appendChild(monto);
+  row.appendChild(tipoLabel); row.appendChild(montoLabel);
+  wrapper.appendChild(btn); wrapper.appendChild(row);
+  list.appendChild(wrapper); tipo.focus();
+}
+
+function addGalonerItem() {
+  const list = document.getElementById('list-galonera');
+  const wrapper = document.createElement('div');
+  wrapper.style.cssText = 'background:#f0f9ff;border:1.5px solid #bae6fd;border-radius:8px;padding:10px;margin-bottom:8px;display:flex;flex-direction:column;gap:8px;position:relative;';
+  const btn = document.createElement('button');
+  btn.type = 'button'; btn.className = 'btn-remove'; btn.textContent = '×';
+  btn.style.cssText = 'position:absolute;top:6px;right:8px;font-size:20px;';
+  btn.onclick = () => wrapper.remove();
+  const row = document.createElement('div');
+  row.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-right:24px;';
+  const galLabel = document.createElement('div');
+  galLabel.style.cssText = 'display:flex;flex-direction:column;gap:3px;';
+  const galLbl = document.createElement('span');
+  galLbl.textContent = 'Descripcion';
+  galLbl.style.cssText = 'font-size:10px;font-weight:600;color:#888;letter-spacing:.04em;';
+  const gal = document.createElement('input');
+  gal.type = 'text'; gal.placeholder = 'Ej: 10 gal, 2x5gal...';
+  gal.dataset.group = 'galonera-desc';
+  gal.style.cssText = 'border:1.5px solid #bae6fd;border-radius:6px;padding:8px 10px;font-size:14px;width:100%;background:#fff;';
+  galLabel.appendChild(galLbl); galLabel.appendChild(gal);
+  const montoLabel = document.createElement('div');
+  montoLabel.style.cssText = 'display:flex;flex-direction:column;gap:3px;';
+  const montoLbl = document.createElement('span');
+  montoLbl.textContent = 'Monto S/';
+  montoLbl.style.cssText = 'font-size:10px;font-weight:600;color:#888;letter-spacing:.04em;';
+  const monto = document.createElement('input');
+  monto.type = 'number'; monto.step = '0.01'; monto.placeholder = '0.00';
+  monto.dataset.group = 'galonera-monto';
+  monto.style.cssText = 'border:1.5px solid #bae6fd;border-radius:6px;padding:8px 10px;font-size:14px;font-family:var(--mono);width:100%;background:#fff;';
+  montoLabel.appendChild(montoLbl); montoLabel.appendChild(monto);
+  row.appendChild(galLabel); row.appendChild(montoLabel);
+  wrapper.appendChild(btn); wrapper.appendChild(row);
+  list.appendChild(wrapper); gal.focus();
+}
+
+async function enviar() {
+  const btn = document.querySelector('.btn-submit');
+  btn.textContent = 'Enviando...';
+  btn.disabled = true;
+  const creditos = getCreditos();
+  const payload = {
+    fecha: document.getElementById('fecha').value,
+    turno: document.querySelector('input[name="turno"]:checked').value,
+    precioDiesel: getVal('precio-diesel'),
+    precioRegular: getVal('precio-regular'),
+    precioPremium: getVal('precio-premium'),
+    s1: getVal('s1'), s2: getVal('s2'), s3: getVal('s3'), s4: getVal('s4'),
+    s5: getVal('s5'), s6: getVal('s6'), s7: getVal('s7'), s8: getVal('s8'),
+    s9: getVal('s9'), s10: getVal('s10'), s11: getVal('s11'), s12: getVal('s12'),
+    s13: getVal('s13'), s14: getVal('s14'), s15: getVal('s15'), s16: getVal('s16'),
+    efectivo: getVal('efectivo'),
+    almuerzo: getVal('almuerzo'),
+    visaTotal: sumInputs('visa'),
+    depTotal: sumInputs('dep'),
+    izipayTotal: sumInputs('izipay'),
+    izipayNoCap: [...document.querySelectorAll('[data-group="izipay-nocap"]')].filter(el => el.dataset.active === 'true').length,
+    yapeTotal: sumInputs('yape'),
+    yapeNoCap: [...document.querySelectorAll('[data-group="yape-nocap"]')].filter(el => el.dataset.active === 'true').length,
+    creditosTotal: creditos.total,
+    creditosDetalle: creditos.detalle,
+    gastosTotal: sumInputs('gasto-monto'),
+    gastosDetalle: [...document.querySelectorAll('[data-group="gasto-desc"]')].map((el,i)=>{const m=document.querySelectorAll('[data-group="gasto-monto"]');return el.value?el.value+' S/'+(parseFloat(m[i]?.value)||0):''}).filter(Boolean).join(' | '),
+    galDiesel: getVal('gal-diesel'),
+    galRegular: getVal('gal-regular'),
+    galPremium: getVal('gal-premium'),
+    varD1: getVal('var-d1'),
+    varReg: getVal('var-reg'),
+    varPrem: getVal('var-prem'),
+    varD2: getVal('var-d2'),
+    gasTotal: [...document.querySelectorAll('[data-group="gas-monto"]')].reduce((s,el)=>s+(parseFloat(el.value)||0),0),
+    gasDetalle: [...document.querySelectorAll('[data-group="gas-tipo"]')].map((el,i)=>{const m=document.querySelectorAll('[data-group="gas-monto"]');return el.value?el.value+' S/'+(parseFloat(m[i]?.value)||0):''}).filter(Boolean).join(' | '),
+    galoneraTotal: [...document.querySelectorAll('[data-group="galonera-monto"]')].reduce((s,el)=>s+(parseFloat(el.value)||0),0),
+    galoneraDetalle: [...document.querySelectorAll('[data-group="galonera-desc"]')].map((el,i)=>{const m=document.querySelectorAll('[data-group="galonera-monto"]');return el.value?el.value+' S/'+(parseFloat(m[i]?.value)||0):''}).filter(Boolean).join(' | '),
+  };
+  try {
+    await fetch(WEBHOOK_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload)
+    });
+    document.querySelector('.container').innerHTML = `
+      <div style="min-height:80vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 20px;gap:20px;">
+        <div style="font-size:64px;">&#x2705;</div>
+        <div style="font-size:22px;font-weight:700;color:var(--ink);">Reporte enviado</div>
+        <div style="font-size:14px;color:#666;max-width:280px;line-height:1.6;">
+          El turno <strong>${payload.turno}</strong> del <strong>${payload.fecha}</strong> fue registrado correctamente.
+        </div>
+        <div style="margin-top:20px;font-size:12px;color:#bbb;">Puedes cerrar esta pagina.</div>
+      </div>`;
+  } catch(err) {
+    btn.textContent = 'Error al enviar - intentar de nuevo';
+    btn.style.background = '#fee2e2';
+    btn.style.color = '#dc2626';
+    btn.disabled = false;
+  }
 }
 </script>
 </body>
