@@ -857,7 +857,7 @@ function calcular() {
   panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
-const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbz39ImUw--4-amaJ9fiyPUYXmAMSHALmcV2kF1bIHpocY_NsL1I3WyPQiIwEe-XBQxaTw/exec";
+const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwBhUzWvVB_lo-pIod8qao4bRB_V4JojCl_QDBru7TgG2KxLIuPTAw3IJjB8lVuyveq_Q/exec";
 
 function getVal(id) {
   const el = document.getElementById(id);
@@ -1042,12 +1042,12 @@ async function enviar() {
   };
 
   try {
-    await fetch(WEBHOOK_URL, {
+    const response = await fetch(WEBHOOK_URL, {
       method: 'POST',
-      mode: 'no-cors',
       headers: {'Content-Type': 'application/json'},
       body: JSON.stringify(payload)
     });
+    if (!response.ok && response.status !== 0) throw new Error('Error ' + response.status);
     document.querySelector('.container').innerHTML = `
       <div style="min-height:80vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 20px;gap:20px;">
         <div style="font-size:64px;">&#x2705;</div>
@@ -1067,4 +1067,3 @@ async function enviar() {
 </script>
 </body>
 </html>
-
