@@ -2,390 +2,355 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Reporte de Turno — Grifo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Reporte de Turno</title>
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  input[type=number]::-webkit-inner-spin-button,
-  input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
-  input[type=number] { -moz-appearance: textfield; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
 
-  :root {
-    --ink:     #1a1a2e;
-    --paper:   #f5f3ee;
-    --rule:    #d4cfc4;
-    --diesel:  #2563a8;
-    --regular: #16a34a;
-    --premium: #b45309;
-    --cash:    #1a1a2e;
-    --danger:  #dc2626;
-    --ok:      #16a34a;
-    --accent:  #2563a8;
-    --input-bg:#ffffff;
-    --radius:  6px;
-    --mono:    'Courier New', monospace;
-  }
+:root {
+  --ink:      #1a1a2e;
+  --bg:       #f0f4f8;
+  --card:     #ffffff;
+  --border:   #dde3ec;
+  --diesel:   #2563a8;
+  --regular:  #16a34a;
+  --premium:  #b45309;
+  --accent:   #2563a8;
+  --ok:       #16a34a;
+  --warn:     #d97706;
+  --fail:     #dc2626;
+  --gray:     #6b7280;
+  --mono:     'Courier New', monospace;
+}
 
-  body {
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    background: var(--paper);
-    color: var(--ink);
-    min-height: 100vh;
-    padding: 0 0 60px;
-  }
+body {
+  font-family: 'Segoe UI', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  padding-bottom: 60px;
+  min-height: 100vh;
+}
 
-  /* ── Header ── */
-  .header {
-    background: var(--ink);
-    color: #fff;
-    padding: 16px 20px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    position: sticky;
-    top: 0;
-    z-index: 100;
-  }
-  .header-logo {
-    font-size: 22px;
-  }
-  .header h1 {
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: .04em;
-    text-transform: uppercase;
-  }
-  .header-sub {
-    font-size: 11px;
-    opacity: .6;
-    margin-top: 1px;
-  }
+/* ── Header ── */
+.header {
+  background: var(--ink);
+  color: #fff;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.header-title { font-size: 15px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.header-sub   { font-size: 11px; opacity: .5; margin-top: 1px; }
 
-  /* ── Layout ── */
-  .container {
-    max-width: 700px;
-    margin: 0 auto;
-    padding: 0 16px;
-  }
+/* ── Loading banner ── */
+.loading-banner {
+  background: #fef3c7;
+  border-bottom: 1px solid #fde68a;
+  padding: 10px 18px;
+  font-size: 13px;
+  color: #92400e;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 
-  /* ── Section ── */
-  .section {
-    margin-top: 24px;
-  }
-  .section-title {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: .12em;
-    text-transform: uppercase;
-    color: #666;
-    padding: 6px 0 8px;
-    border-bottom: 2px solid var(--rule);
-    margin-bottom: 14px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .section-title .dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    display: inline-block;
-  }
-  .dot-diesel  { background: var(--diesel); }
-  .dot-regular { background: var(--regular); }
-  .dot-premium { background: var(--premium); }
-  .dot-cash    { background: var(--cash); }
-  .dot-credit  { background: #7c3aed; }
-  .dot-tank    { background: #0891b2; }
+/* ── Container ── */
+.container { max-width: 640px; margin: 0 auto; padding: 16px; }
 
-  /* ── Meta row ── */
-  .meta-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-top: 20px;
-  }
+/* ── Section ── */
+.section { margin-bottom: 16px; }
+.section-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--gray);
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--border);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.dot { width:8px; height:8px; border-radius:50%; display:inline-block; flex-shrink:0; }
+.dot-diesel  { background: var(--diesel); }
+.dot-regular { background: var(--regular); }
+.dot-premium { background: var(--premium); }
+.dot-dark    { background: var(--ink); }
+.dot-credit  { background: #7c3aed; }
+.dot-gas     { background: #f59e0b; }
+.dot-galonera { background: #0891b2; }
 
-  /* ── Fuel grid ── */
-  .fuel-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
+/* ── Card ── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+}
+.card-body { padding: 14px; }
 
-  /* ── Field ── */
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
-  .field label {
-    font-size: 11px;
-    font-weight: 600;
-    color: #555;
-    letter-spacing: .04em;
-  }
-  .field input[type="number"],
-  .field input[type="text"],
-  .field input[type="date"],
-  .field select,
-  .field textarea {
-    background: var(--input-bg);
-    border: 1.5px solid var(--rule);
-    border-radius: var(--radius);
-    padding: 9px 11px;
-    font-size: 15px;
-    font-family: var(--mono);
-    color: var(--ink);
-    width: 100%;
-    transition: border-color .15s;
-    -webkit-appearance: none;
-  }
-  .field input:focus,
-  .field select:focus,
-  .field textarea:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(37,99,168,.12);
-  }
-  .field input.diesel  { border-left: 3px solid var(--diesel); }
-  .field input.regular { border-left: 3px solid var(--regular); }
-  .field input.premium { border-left: 3px solid var(--premium); }
+/* ── Field ── */
+.field { display: flex; flex-direction: column; gap: 4px; }
+.field label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--gray);
+}
+.field input[type=number], .field input[type=text], .field input[type=date], .field select {
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  padding: 9px 11px;
+  font-size: 15px;
+  font-family: var(--mono);
+  color: var(--ink);
+  width: 100%;
+  -webkit-appearance: none;
+}
+.field input[type=number]::-webkit-inner-spin-button,
+.field input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; }
+.field input[type=number] { -moz-appearance: textfield; }
+input[type=checkbox] { -webkit-appearance: checkbox; appearance: checkbox; }
+.field input:focus, .field select:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(37,99,168,.1); }
+.field input.diesel  { border-left: 3px solid var(--diesel); }
+.field input.regular { border-left: 3px solid var(--regular); }
+.field input.premium { border-left: 3px solid var(--premium); }
 
-  /* ── Fuel label badge ── */
-  .fuel-label {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: .08em;
-    padding: 2px 6px;
-    border-radius: 3px;
-    display: inline-block;
-    margin-bottom: 2px;
-  }
-  .fuel-label.diesel  { background: #dbeafe; color: var(--diesel); }
-  .fuel-label.regular { background: #dcfce7; color: var(--regular); }
-  .fuel-label.premium { background: #fef3c7; color: var(--premium); }
+/* ── Fuel label ── */
+.fuel-badge {
+  font-size: 10px; font-weight: 700; letter-spacing: .06em;
+  padding: 2px 7px; border-radius: 3px; display: inline-block; margin-bottom: 3px;
+}
+.fuel-badge.diesel  { background: #dbeafe; color: var(--diesel); }
+.fuel-badge.regular { background: #dcfce7; color: var(--regular); }
+.fuel-badge.premium { background: #fef3c7; color: var(--premium); }
 
-  /* ── Price row ── */
-  .price-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 8px;
-  }
+/* ── Two column grid ── */
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
 
-  /* ── Dynamic list ── */
-  .dynamic-list {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-  }
-  .dynamic-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-  .dynamic-item input {
-    flex: 1;
-    background: var(--input-bg);
-    border: 1.5px solid var(--rule);
-    border-radius: var(--radius);
-    padding: 9px 11px;
-    font-size: 15px;
-    font-family: var(--mono);
-    color: var(--ink);
-    transition: border-color .15s;
-    -webkit-appearance: none;
-  }
-  .dynamic-item input:focus {
-    outline: none;
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(37,99,168,.12);
-  }
-  .dynamic-item input.wide { flex: 2; }
-  .btn-remove {
-    background: none;
-    border: none;
-    color: #bbb;
-    font-size: 18px;
-    cursor: pointer;
-    padding: 4px;
-    line-height: 1;
-    flex-shrink: 0;
-  }
-  .btn-remove:hover { color: var(--danger); }
-  .btn-add {
-    margin-top: 6px;
-    background: none;
-    border: 1.5px dashed var(--rule);
-    border-radius: var(--radius);
-    padding: 8px;
-    width: 100%;
-    color: #888;
-    font-size: 13px;
-    cursor: pointer;
-    transition: all .15s;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-  }
-  .btn-add:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: #f0f6ff;
-  }
+/* ── Surtidores ── */
+.surtidores-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
 
-  /* ── Cash row ── */
-  .cash-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-  }
+/* ── Live calc box ── */
+.live-calc {
+  background: #f8fafc;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin-top: 12px;
+}
+.live-calc-title {
+  font-size: 10px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--gray); margin-bottom: 10px;
+}
+.live-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 5px 0; border-bottom: 1px solid #eee; font-size: 14px;
+}
+.live-row:last-child { border-bottom: none; }
+.live-row .lbl { color: var(--gray); font-size: 13px; }
+.live-row .val { font-family: var(--mono); font-weight: 700; }
+.live-row.total-row .lbl { font-weight: 700; color: var(--ink); font-size: 14px; }
+.live-row.total-row .val { font-size: 16px; color: var(--accent); }
+.prev-val { font-size: 10px; color: #aaa; margin-top: 2px; }
 
-  /* ── Varillas ── */
-  .varilla-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 8px;
-  }
+/* ── Dynamic list ── */
+.dynamic-list { display: flex; flex-direction: column; gap: 6px; }
+.dynamic-item {
+  display: flex; align-items: center; gap: 8px;
+}
+.dynamic-item input {
+  flex: 1;
+  background: var(--card);
+  border: 1.5px solid var(--border);
+  border-radius: 6px;
+  padding: 9px 11px;
+  font-size: 15px;
+  font-family: var(--mono);
+  color: var(--ink);
+  -webkit-appearance: none;
+  -moz-appearance: textfield;
+}
+.dynamic-item input::-webkit-inner-spin-button,
+.dynamic-item input::-webkit-outer-spin-button { -webkit-appearance: none; }
+.dynamic-item input:focus { outline: none; border-color: var(--accent); }
+.dynamic-item input.wide { flex: 2; font-family: inherit; }
+.btn-remove {
+  background: none; border: none; color: #ccc;
+  font-size: 20px; cursor: pointer; padding: 4px; flex-shrink: 0; line-height: 1;
+}
+.btn-remove:hover { color: var(--fail); }
+.btn-add {
+  margin-top: 6px; background: none;
+  border: 1.5px dashed var(--border);
+  border-radius: 6px; padding: 8px;
+  width: 100%; color: #aaa; font-size: 13px;
+  cursor: pointer; display: flex; align-items: center;
+  justify-content: center; gap: 6px; transition: all .15s;
+}
+.btn-add:hover { border-color: var(--accent); color: var(--accent); background: #f0f6ff; }
 
-  /* ── Galones summary ── */
-  .galones-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 8px;
-  }
+/* ── Section subtotal ── */
+.subtotal {
+  margin-top: 8px; padding: 8px 12px;
+  background: #f8fafc; border-radius: 6px;
+  display: flex; justify-content: space-between;
+  font-size: 13px; color: var(--gray);
+}
+.subtotal span { font-family: var(--mono); font-weight: 700; color: var(--ink); }
 
-  /* ── Submit ── */
-  .submit-area {
-    margin-top: 32px;
-    padding: 20px;
-    background: var(--ink);
-    border-radius: 10px;
-    text-align: center;
-  }
-  .btn-submit {
-    background: #fff;
-    color: var(--ink);
-    border: none;
-    border-radius: var(--radius);
-    padding: 14px 40px;
-    font-size: 16px;
-    font-weight: 700;
-    letter-spacing: .04em;
-    cursor: pointer;
-    width: 100%;
-    transition: background .15s;
-  }
-  .btn-submit:hover { background: #e8f0ff; }
+/* ── Toggle nocap ── */
+.nocap-btn {
+  flex-shrink: 0; padding: 6px 10px; border-radius: 6px;
+  border: 1.5px solid var(--border); background: #fff;
+  color: #aaa; font-size: 11px; font-weight: 700;
+  cursor: pointer; white-space: nowrap; transition: all .15s; line-height: 1;
+}
+.nocap-btn.active { background: #fee2e2; color: var(--fail); border-color: var(--fail); }
 
-  /* ── Result panel ── */
-  .result-panel {
-    display: none;
-    margin-top: 20px;
-    border-radius: 10px;
-    overflow: hidden;
-  }
-  .result-header {
-    padding: 16px 20px;
-    font-size: 18px;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .result-header.ok   { background: var(--ok);     color: #fff; }
-  .result-header.fail { background: var(--danger);  color: #fff; }
-  .result-body {
-    background: #fff;
-    padding: 16px 20px;
-    border: 1.5px solid var(--rule);
-    border-top: none;
-    border-radius: 0 0 10px 10px;
-  }
-  .result-row {
-    display: flex;
-    justify-content: space-between;
-    padding: 6px 0;
-    border-bottom: 1px solid #f0f0f0;
-    font-size: 14px;
-  }
-  .result-row:last-child { border-bottom: none; }
-  .result-row .label { color: #666; }
-  .result-row .value { font-family: var(--mono); font-weight: 600; }
-  .result-row.total .label { font-weight: 700; color: var(--ink); font-size: 15px; }
-  .result-row.total .value { font-size: 16px; }
-  .result-row.diff-ok   .value { color: var(--ok); }
-  .result-row.diff-fail .value { color: var(--danger); }
+/* ── Credit item ── */
+.credit-wrapper {
+  background: #faf9f7; border: 1.5px solid var(--border);
+  border-radius: 8px; padding: 10px; margin-bottom: 6px;
+  display: flex; flex-direction: column; gap: 8px; position: relative;
+}
+.credit-wrapper .btn-remove { position: absolute; top: 6px; right: 8px; }
+.credit-row1 { display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center; padding-right: 24px; }
+.credit-row1 input {
+  border: 1.5px solid var(--border); border-radius: 6px;
+  padding: 8px 10px; font-size: 14px; width: 100%;
+}
+.credit-row1 select {
+  border: 1.5px solid var(--border); border-radius: 6px;
+  padding: 8px 6px; font-size: 13px; font-weight: 700;
+  background: #fff; min-width: 100px;
+}
+.credit-toggle { display: flex; border: 1.5px solid var(--border); border-radius: 6px; overflow: hidden; width: fit-content; }
+.credit-toggle button {
+  padding: 6px 14px; font-size: 12px; font-weight: 700;
+  border: none; cursor: pointer; background: #fff; color: #aaa; transition: all .15s;
+}
+.credit-toggle button.active { background: var(--ink); color: #fff; }
 
-  /* ── Divider ── */
-  .divider { height: 1px; background: var(--rule); margin: 16px 0; }
+/* ── Gas / Galonera item ── */
+.gas-wrapper {
+  background: #fffbeb; border: 1.5px solid #fde68a;
+  border-radius: 8px; padding: 10px; margin-bottom: 6px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  position: relative; padding-right: 34px;
+}
+.galonera-wrapper {
+  background: #f0f9ff; border: 1.5px solid #bae6fd;
+  border-radius: 8px; padding: 10px; margin-bottom: 6px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+  position: relative; padding-right: 34px;
+}
+.gas-wrapper input, .galonera-wrapper input {
+  border: 1.5px solid var(--border); border-radius: 6px;
+  padding: 8px 10px; font-size: 14px; width: 100%; background: #fff;
+  -webkit-appearance: none; -moz-appearance: textfield;
+}
+.gas-wrapper input::-webkit-inner-spin-button,
+.gas-wrapper input::-webkit-outer-spin-button,
+.galonera-wrapper input::-webkit-inner-spin-button,
+.galonera-wrapper input::-webkit-outer-spin-button { -webkit-appearance: none; }
+.item-label {
+  font-size: 10px; font-weight: 700; letter-spacing: .04em;
+  color: var(--gray); margin-bottom: 3px;
+}
 
-  /* ── Turno toggle ── */
-  .turno-toggle {
-    display: flex;
-    gap: 0;
-    border: 1.5px solid var(--rule);
-    border-radius: var(--radius);
-    overflow: hidden;
-  }
-  .turno-toggle label {
-    flex: 1;
-    text-align: center;
-    padding: 10px;
-    font-size: 14px;
-    font-weight: 600;
-    cursor: pointer;
-    background: var(--input-bg);
-    transition: all .15s;
-    color: #888;
-  }
-  .turno-toggle input[type="radio"] { display: none; }
-  .turno-toggle input:checked + label {
-    background: var(--ink);
-    color: #fff;
-  }
+/* ── Turno toggle ── */
+.turno-toggle { display: flex; border: 1.5px solid var(--border); border-radius: 6px; overflow: hidden; }
+.turno-toggle input[type=radio] { display: none; }
+.turno-toggle label {
+  flex: 1; text-align: center; padding: 10px;
+  font-size: 14px; font-weight: 600; cursor: pointer;
+  background: var(--card); color: #aaa; transition: all .15s;
+}
+.turno-toggle input:checked + label { background: var(--ink); color: #fff; }
 
-  .note {
-    font-size: 11px;
-    color: #999;
-    margin-top: 4px;
-  }
+/* ── Cuadre preview ── */
+.cuadre-preview {
+  border-radius: 10px; overflow: hidden;
+  border: 2px solid var(--border); margin-top: 4px;
+}
+.cuadre-header {
+  padding: 12px 16px; font-size: 12px; font-weight: 700;
+  letter-spacing: .06em; text-transform: uppercase;
+  background: var(--ink); color: #fff;
+}
+.cuadre-body { padding: 14px; background: #fff; }
+.cuadre-row {
+  display: flex; justify-content: space-between;
+  padding: 6px 0; border-bottom: 1px solid #f3f4f6; font-size: 14px;
+}
+.cuadre-row:last-child { border-bottom: none; }
+.cuadre-row .cl { color: var(--gray); }
+.cuadre-row .cv { font-family: var(--mono); font-weight: 600; }
+.cuadre-row.big .cl { font-weight: 700; color: var(--ink); font-size: 15px; }
+.cuadre-row.big .cv { font-size: 17px; }
+.cuadre-divider { height: 1px; background: #e5e7eb; margin: 8px 0; }
+.cuadre-result {
+  padding: 12px 16px; font-size: 15px; font-weight: 700;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.cuadre-result.ok   { background: #dcfce7; color: #15803d; }
+.cuadre-result.warn { background: #fef3c7; color: #92400e; }
 
-  /* No-captura checkbox */
-  .no-cap {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    color: #888;
-    cursor: pointer;
-    white-space: nowrap;
-    flex-shrink: 0;
-  }
-  .no-cap input { width: 14px; height: 14px; cursor: pointer; }
+/* ── Submit ── */
+.submit-area {
+  margin-top: 20px; border-radius: 10px;
+  background: var(--ink); padding: 18px;
+}
+.btn-submit {
+  width: 100%; padding: 14px; border: none; border-radius: 6px;
+  font-size: 16px; font-weight: 700; letter-spacing: .04em;
+  cursor: pointer; transition: all .2s;
+}
+.btn-submit.ok   { background: #fff; color: var(--ink); }
+.btn-submit.warn { background: #fef3c7; color: #92400e; }
+.btn-submit:disabled { opacity: .5; cursor: not-allowed; }
+
+/* ── Prev reading tag ── */
+.prev-tag {
+  font-size: 10px; color: #aaa; margin-top: 2px;
+  font-family: var(--mono);
+}
 </style>
 </head>
 <body>
 
 <div class="header">
-  <div class="header-logo">⛽</div>
+  <span style="font-size:22px;">⛽</span>
   <div>
-    <div class="header-h1" style="font-size:16px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;">Reporte de Turno</div>
+    <div class="header-title">Reporte de Turno</div>
     <div class="header-sub">Grifo — Sistema de cuadre</div>
   </div>
+</div>
+
+<div id="loading-banner" class="loading-banner">
+  ⏳ Cargando datos del turno anterior...
 </div>
 
 <div class="container">
 
   <!-- META -->
   <div class="section">
-    <div class="meta-row">
+    <div class="grid-2" style="margin-top:4px;">
       <div class="field">
-        <label>FECHA</label>
-        <input type="date" id="fecha" required>
+        <label>Fecha</label>
+        <input type="date" id="fecha">
       </div>
       <div class="field">
-        <label>TURNO</label>
+        <label>Turno</label>
         <div class="turno-toggle">
           <input type="radio" name="turno" id="t-dia" value="Día" checked>
           <label for="t-dia">☀️ Día</label>
@@ -398,674 +363,599 @@
 
   <!-- PRECIOS -->
   <div class="section">
-    <div class="section-title">
-      <span class="dot dot-diesel"></span> Precios de combustible
-    </div>
-    <p class="note" style="margin-bottom:10px;">Solo cambiar si hubo variación hoy. Si no, dejar como están.</p>
-    <div class="price-row">
-      <div class="field">
-        <span class="fuel-label diesel">DIESEL</span>
-        <input type="number" step="0.01" id="precio-diesel" placeholder="0.00" value="15.50" class="diesel">
+    <div class="section-title"><span class="dot dot-dark"></span> Precios de combustible</div>
+    <div class="card"><div class="card-body">
+      <p style="font-size:12px;color:var(--gray);margin-bottom:10px;">Solo cambiar si hubo variación hoy.</p>
+      <div class="grid-3">
+        <div class="field">
+          <span class="fuel-badge diesel">DIESEL</span>
+          <input type="number" step="0.01" id="precio-diesel" class="diesel" placeholder="0.00" oninput="recalcular()">
+        </div>
+        <div class="field">
+          <span class="fuel-badge regular">REGULAR</span>
+          <input type="number" step="0.01" id="precio-regular" class="regular" placeholder="0.00" oninput="recalcular()">
+        </div>
+        <div class="field">
+          <span class="fuel-badge premium">PREMIUM</span>
+          <input type="number" step="0.01" id="precio-premium" class="premium" placeholder="0.00" oninput="recalcular()">
+        </div>
       </div>
-      <div class="field">
-        <span class="fuel-label regular">REGULAR</span>
-        <input type="number" step="0.01" id="precio-regular" placeholder="0.00" value="15.50" class="regular">
-      </div>
-      <div class="field">
-        <span class="fuel-label premium">PREMIUM</span>
-        <input type="number" step="0.01" id="precio-premium" placeholder="0.00" value="16.50" class="premium">
-      </div>
-    </div>
+    </div></div>
   </div>
 
-  <!-- LECTURAS SURTIDORES -->
+  <!-- SURTIDORES -->
   <div class="section">
-    <div class="section-title">
-      <span class="dot dot-diesel"></span> Lecturas de surtidores
-    </div>
-    <p class="note" style="margin-bottom:12px;">Ingresar el valor acumulado que muestra cada máquina.</p>
-
-    <div class="fuel-grid">
-      <!-- Col izquierda -->
-      <div style="display:flex;flex-direction:column;gap:8px;">
-        <div class="field"><span class="fuel-label diesel">DIESEL</span><input type="number" step="0.001" class="surtidor diesel" id="s1" placeholder="0.000"></div>
-        <div class="field"><span class="fuel-label diesel">DIESEL</span><input type="number" step="0.001" class="surtidor diesel" id="s2" placeholder="0.000"></div>
-        <div class="field"><span class="fuel-label diesel">DIESEL</span><input type="number" step="0.001" class="surtidor diesel" id="s3" placeholder="0.000"></div>
-        <div class="field"><span class="fuel-label premium">PREMIUM</span><input type="number" step="0.001" class="surtidor premium" id="s4" placeholder="0.000"></div>
-        <div class="field"><span class="fuel-label regular">REGULAR</span><input type="number" step="0.001" class="surtidor regular" id="s5" placeholder="0.000"></div>
-        <div class="field"><span class="fuel-label diesel">DIESEL</span><input type="number" step="0.001" class="surtidor diesel" id="s6" placeholder="0.000"></div>
-        <div class="field"><span class="fuel-label premium">PREMIUM</span><input type="number" step="0.001" class="surtidor premium" id="s7" placeholder="0.000"></div>
-        <div class="field"><span class="fuel-label regular">REGULAR</span><input type="number" step="0.001" class="surtidor regular" id="s8" placeholder="0.000"></div>
+    <div class="section-title"><span class="dot dot-diesel"></span> Lecturas de surtidores</div>
+    <div class="card"><div class="card-body">
+      <div class="surtidores-wrap" id="surtidores-wrap">
+        <!-- Generated by JS -->
       </div>
-      <!-- Col derecha -->
-      <div style="display:flex;flex-direction:column;gap:8px;">
-        <div class="field"><span class="fuel-label diesel">DIESEL</span><input type="number" step="0.001" class="surtidor diesel" id="s9" placeholder="0.000"></div>
-        <div class="field"><span class="fuel-label regular">REGULAR</span><input type="number" step="0.001" class="surtidor regular" id="s10" placeholder="0.000"></div>
-        <div class="field"><span class="fuel-label premium">PREMIUM</span><input type="number" step="0.001" class="surtidor premium" id="s11" placeholder="0.000"></div>
-        <div class="field"><span class="fuel-label diesel">DIESEL</span><input type="number" step="0.001" class="surtidor diesel" id="s12" placeholder="0.000"></div>
-        <div class="field"><span class="fuel-label diesel">DIESEL</span><input type="number" step="0.001" class="surtidor diesel" id="s13" placeholder="0.000"></div>
-        <div class="field"><span class="fuel-label regular">REGULAR</span><input type="number" step="0.001" class="surtidor regular" id="s14" placeholder="0.000"></div>
-        <div class="field"><span class="fuel-label premium">PREMIUM</span><input type="number" step="0.001" class="surtidor premium" id="s15" placeholder="0.000"></div>
-        <div class="field"><span class="fuel-label diesel">DIESEL</span><input type="number" step="0.001" class="surtidor diesel" id="s16" placeholder="0.000"></div>
+      <!-- Live calc -->
+      <div class="live-calc" id="live-calc">
+        <div class="live-calc-title">⚡ Venta calculada en tiempo real</div>
+        <div class="live-row">
+          <span class="lbl">Diesel</span>
+          <span class="val" id="lc-gal-diesel">— gal → S/ —</span>
+        </div>
+        <div class="live-row">
+          <span class="lbl">Regular</span>
+          <span class="val" id="lc-gal-regular">— gal → S/ —</span>
+        </div>
+        <div class="live-row">
+          <span class="lbl">Premium</span>
+          <span class="val" id="lc-gal-premium">— gal → S/ —</span>
+        </div>
+        <div class="live-row total-row">
+          <span class="lbl">TOTAL TEÓRICO</span>
+          <span class="val" id="lc-total">S/ —</span>
+        </div>
       </div>
-    </div>
+    </div></div>
   </div>
 
-  <!-- EFECTIVO Y ALMUERZO -->
+  <!-- EFECTIVO -->
   <div class="section">
-    <div class="section-title">
-      <span class="dot dot-cash"></span> Efectivo y gastos
-    </div>
-    <div class="cash-row">
-      <div class="field">
-        <label>EFECTIVO S/</label>
-        <input type="number" step="0.01" id="efectivo" placeholder="0.00">
+    <div class="section-title"><span class="dot dot-dark"></span> Efectivo y gastos</div>
+    <div class="card"><div class="card-body">
+      <div class="grid-2">
+        <div class="field"><label>Efectivo S/</label>
+          <input type="number" step="0.01" id="efectivo" placeholder="0.00" oninput="recalcular()">
+        </div>
+        <div class="field"><label>Almuerzo S/</label>
+          <input type="number" step="0.01" id="almuerzo" placeholder="0.00" oninput="recalcular()">
+        </div>
       </div>
-      <div class="field">
-        <label>ALMUERZO S/</label>
-        <input type="number" step="0.01" id="almuerzo" placeholder="0.00">
-      </div>
-    </div>
+    </div></div>
   </div>
 
   <!-- VISA -->
   <div class="section">
-    <div class="section-title">
-      <span class="dot dot-cash"></span> Pagos con Visa / Tarjeta
-    </div>
-    <div class="dynamic-list" id="list-visa"></div>
-    <button class="btn-add" onclick="addItem('visa','Visa','number')">+ Agregar pago</button>
+    <div class="section-title"><span class="dot dot-dark"></span> Visa / Tarjeta</div>
+    <div class="card"><div class="card-body">
+      <div class="dynamic-list" id="list-visa"></div>
+      <button class="btn-add" onclick="addSimple('visa')">+ Agregar pago</button>
+      <div class="subtotal">Total Visa <span id="sub-visa">S/ 0.00</span></div>
+    </div></div>
   </div>
 
-  <!-- DEPÓSITO -->
+  <!-- DEPOSITO -->
   <div class="section">
-    <div class="section-title">
-      <span class="dot dot-cash"></span> Depósitos bancarios
-    </div>
-    <div class="dynamic-list" id="list-dep"></div>
-    <button class="btn-add" onclick="addItem('dep','Depósito','number')">+ Agregar depósito</button>
+    <div class="section-title"><span class="dot dot-dark"></span> Depósitos bancarios</div>
+    <div class="card"><div class="card-body">
+      <div class="dynamic-list" id="list-dep"></div>
+      <button class="btn-add" onclick="addSimple('dep')">+ Agregar depósito</button>
+      <div class="subtotal">Total Depósitos <span id="sub-dep">S/ 0.00</span></div>
+    </div></div>
   </div>
 
   <!-- IZIPAY -->
   <div class="section">
-    <div class="section-title">
-      <span class="dot dot-cash"></span> Pagos QR Izipay
-    </div>
-    <div class="dynamic-list" id="list-izipay"></div>
-    <button class="btn-add" onclick="addItem('izipay','Izipay','number',true)">+ Agregar pago</button>
+    <div class="section-title"><span class="dot dot-dark"></span> Pagos QR Izipay</div>
+    <div class="card"><div class="card-body">
+      <div class="dynamic-list" id="list-izipay"></div>
+      <button class="btn-add" onclick="addNocap('izipay')">+ Agregar pago</button>
+      <div class="subtotal">Total Izipay <span id="sub-izipay">S/ 0.00</span></div>
+    </div></div>
   </div>
 
   <!-- YAPE -->
   <div class="section">
-    <div class="section-title">
-      <span class="dot dot-cash"></span> Pagos a Yape BCP
-    </div>
-    <div class="dynamic-list" id="list-yape"></div>
-    <button class="btn-add" onclick="addItem('yape','Yape','number',true)">+ Agregar pago</button>
+    <div class="section-title"><span class="dot dot-dark"></span> Pagos Yape BCP</div>
+    <div class="card"><div class="card-body">
+      <div class="dynamic-list" id="list-yape"></div>
+      <button class="btn-add" onclick="addNocap('yape')">+ Agregar pago</button>
+      <div class="subtotal">Total Yape <span id="sub-yape">S/ 0.00</span></div>
+    </div></div>
   </div>
 
   <!-- CRÉDITOS -->
   <div class="section">
-    <div class="section-title">
-      <span class="dot dot-credit"></span> Créditos
-    </div>
-    <div class="dynamic-list" id="list-credito"></div>
-    <button class="btn-add" onclick="addCreditItem()">+ Agregar crédito</button>
+    <div class="section-title"><span class="dot dot-credit"></span> Créditos</div>
+    <div class="card"><div class="card-body">
+      <div id="list-credito"></div>
+      <button class="btn-add" onclick="addCredito()">+ Agregar crédito</button>
+      <div class="subtotal">Total Créditos <span id="sub-credito">S/ 0.00</span></div>
+    </div></div>
   </div>
 
   <!-- GASTOS EXTRA -->
   <div class="section">
-    <div class="section-title">
-      <span class="dot dot-cash"></span> Gastos extra
-    </div>
-    <div class="dynamic-list" id="list-gasto"></div>
-    <button class="btn-add" onclick="addGastoItem()">+ Agregar gasto</button>
+    <div class="section-title"><span class="dot dot-dark"></span> Gastos extra</div>
+    <div class="card"><div class="card-body">
+      <div class="dynamic-list" id="list-gasto"></div>
+      <button class="btn-add" onclick="addGasto()">+ Agregar gasto</button>
+      <div class="subtotal">Total Gastos extra <span id="sub-gasto">S/ 0.00</span></div>
+    </div></div>
   </div>
-
-  <!-- VARILLAS -->
-  <div class="section">
-    <div class="section-title">
-      <span class="dot dot-tank"></span> Varillas
-    </div>
-        <div style="display:flex;flex-direction:column;gap:8px;">
-      <div class="field">
-        <span class="fuel-label diesel">DIESEL</span>
-        <input type="number" step="0.1" id="var-d1" placeholder="0.0">
-      </div>
-      <div class="field">
-        <span class="fuel-label regular">REGULAR</span>
-        <input type="number" step="0.1" id="var-reg" placeholder="0.0">
-      </div>
-      <div class="field">
-        <span class="fuel-label premium">PREMIUM</span>
-        <input type="number" step="0.1" id="var-prem" placeholder="0.0">
-      </div>
-      <div class="field">
-        <span class="fuel-label diesel">DIESEL</span>
-        <input type="number" step="0.1" id="var-d2" placeholder="0.0">
-      </div>
-    </div>
-  </div>
-
-  <!-- GALONES (calculados por trabajadores) -->
-  <div class="section">
-    <div class="section-title">
-      <span class="dot dot-diesel"></span> Galones vendidos
-    </div>
-        <div style="display:flex;flex-direction:column;gap:8px;">
-      <div class="field">
-        <span class="fuel-label diesel">DIESEL</span>
-        <input type="number" step="0.001" id="gal-diesel" placeholder="0.000" class="diesel">
-      </div>
-      <div class="field">
-        <span class="fuel-label regular">REGULAR</span>
-        <input type="number" step="0.001" id="gal-regular" placeholder="0.000" class="regular">
-      </div>
-      <div class="field">
-        <span class="fuel-label premium">PREMIUM</span>
-        <input type="number" step="0.001" id="gal-premium" placeholder="0.000" class="premium">
-      </div>
-    </div>
-  </div>
-
 
   <!-- GAS -->
   <div class="section">
-    <div class="section-title">
-      <span class="dot" style="background:#f59e0b;"></span> Venta de Gas
-    </div>
-        <div class="dynamic-list" id="list-gas"></div>
-    <button class="btn-add" onclick="addGasItem()">+ Agregar venta de gas</button>
+    <div class="section-title"><span class="dot dot-gas"></span> Venta de Gas</div>
+    <div class="card"><div class="card-body">
+      <div id="list-gas"></div>
+      <button class="btn-add" onclick="addGas()">+ Agregar venta de gas</button>
+    </div></div>
   </div>
 
   <!-- GALONERAS -->
   <div class="section">
-    <div class="section-title">
-      <span class="dot" style="background:#0891b2;"></span> Venta de Galoneras
+    <div class="section-title"><span class="dot dot-galonera"></span> Venta de Galoneras</div>
+    <div class="card"><div class="card-body">
+      <div id="list-galonera"></div>
+      <button class="btn-add" onclick="addGalonera()">+ Agregar venta de galonera</button>
+    </div></div>
+  </div>
+
+  <!-- VARILLAS -->
+  <div class="section">
+    <div class="section-title"><span class="dot" style="background:#0891b2;"></span> Varillas</div>
+    <div class="card"><div class="card-body">
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div class="field"><span class="fuel-badge diesel">DIESEL 1</span>
+          <input type="number" step="0.1" id="var-d1" placeholder="0.0"></div>
+        <div class="field"><span class="fuel-badge regular">REGULAR</span>
+          <input type="number" step="0.1" id="var-reg" placeholder="0.0"></div>
+        <div class="field"><span class="fuel-badge premium">PREMIUM</span>
+          <input type="number" step="0.1" id="var-prem" placeholder="0.0"></div>
+        <div class="field"><span class="fuel-badge diesel">DIESEL 2</span>
+          <input type="number" step="0.1" id="var-d2" placeholder="0.0"></div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- GALONES TRABAJADOR -->
+  <div class="section">
+    <div class="section-title"><span class="dot dot-diesel"></span> Galones vendidos (tu cálculo)</div>
+    <div class="card"><div class="card-body">
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div class="field"><span class="fuel-badge diesel">DIESEL</span>
+          <input type="number" step="0.001" id="gal-diesel" placeholder="0.000" class="diesel" oninput="recalcular()"></div>
+        <div class="field"><span class="fuel-badge regular">REGULAR</span>
+          <input type="number" step="0.001" id="gal-regular" placeholder="0.000" class="regular" oninput="recalcular()"></div>
+        <div class="field"><span class="fuel-badge premium">PREMIUM</span>
+          <input type="number" step="0.001" id="gal-premium" placeholder="0.000" class="premium" oninput="recalcular()"></div>
+      </div>
+    </div></div>
+  </div>
+
+  <!-- CUADRE PREVIEW -->
+  <div class="section">
+    <div class="section-title"><span class="dot dot-dark"></span> Resumen del turno</div>
+    <div class="cuadre-preview">
+      <div class="cuadre-header">Cuadre antes de enviar</div>
+      <div class="cuadre-body">
+        <div class="cuadre-row big">
+          <span class="cl">Venta teórica (sistema)</span>
+          <span class="cv" id="cp-teorico">S/ —</span>
+        </div>
+        <div class="cuadre-divider"></div>
+        <div class="cuadre-row"><span class="cl">Efectivo</span><span class="cv" id="cp-efectivo">S/ 0.00</span></div>
+        <div class="cuadre-row"><span class="cl">Visa</span><span class="cv" id="cp-visa">S/ 0.00</span></div>
+        <div class="cuadre-row"><span class="cl">Depósitos</span><span class="cv" id="cp-dep">S/ 0.00</span></div>
+        <div class="cuadre-row"><span class="cl">Izipay</span><span class="cv" id="cp-izipay">S/ 0.00</span></div>
+        <div class="cuadre-row"><span class="cl">Yape</span><span class="cv" id="cp-yape">S/ 0.00</span></div>
+        <div class="cuadre-row"><span class="cl">Créditos</span><span class="cv" id="cp-credito">S/ 0.00</span></div>
+        <div class="cuadre-row"><span class="cl">Almuerzo (descuento)</span><span class="cv" id="cp-almuerzo">− S/ 0.00</span></div>
+        <div class="cuadre-row"><span class="cl">Gastos extra (descuento)</span><span class="cv" id="cp-gastos">− S/ 0.00</span></div>
+        <div class="cuadre-divider"></div>
+        <div class="cuadre-row big">
+          <span class="cl">Total cobrado</span>
+          <span class="cv" id="cp-cobrado">S/ —</span>
+        </div>
+      </div>
+      <div class="cuadre-result" id="cp-result">
+        <span>Completa las lecturas para ver el cuadre</span>
+        <span></span>
+      </div>
     </div>
-    <div class="dynamic-list" id="list-galonera"></div>
-    <button class="btn-add" onclick="addGalonerItem()">+ Agregar venta de galonera</button>
   </div>
 
   <!-- SUBMIT -->
   <div class="submit-area">
-    <button class="btn-submit" onclick="enviar()">ENVIAR REPORTE</button>
+    <button class="btn-submit ok" id="btn-enviar" onclick="enviar()">ENVIAR REPORTE</button>
   </div>
 
-  <!-- RESULT -->
-  <div class="result-panel" id="result-panel" style="display:none">
-    <div class="result-header" id="result-header"></div>
-    <div class="result-body" id="result-body"></div>
-  </div>
-
-</div>
+</div><!-- /container -->
 
 <script>
-// Set today's date
-document.getElementById('fecha').valueAsDate = new Date();
+const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbxt1IHxht5EbCz_0tE4AqAcChqlEaxEmkPcXUp2idtxw85PzDUDFpLfby3tS_9uffNx/exec";
 
-// ── Dynamic list helpers ──────────────────────────────────────
-function addItem(group, label, type='number', hasNoCap=false) {
-  const list = document.getElementById('list-' + group);
-  const idx = list.children.length + 1;
-  const div = document.createElement('div');
-  div.className = 'dynamic-item';
+// Surtidor config: id, combustible, label
+const SURTIDORES = [
+  {id:'s1', tipo:'diesel', label:'DIESEL'},
+  {id:'s2', tipo:'diesel', label:'DIESEL'},
+  {id:'s3', tipo:'diesel', label:'DIESEL'},
+  {id:'s4', tipo:'premium', label:'PREMIUM'},
+  {id:'s5', tipo:'regular', label:'REGULAR'},
+  {id:'s6', tipo:'diesel', label:'DIESEL'},
+  {id:'s7', tipo:'premium', label:'PREMIUM'},
+  {id:'s8', tipo:'regular', label:'REGULAR'},
+  {id:'s9', tipo:'diesel', label:'DIESEL'},
+  {id:'s10', tipo:'regular', label:'REGULAR'},
+  {id:'s11', tipo:'premium', label:'PREMIUM'},
+  {id:'s12', tipo:'diesel', label:'DIESEL'},
+  {id:'s13', tipo:'diesel', label:'DIESEL'},
+  {id:'s14', tipo:'regular', label:'REGULAR'},
+  {id:'s15', tipo:'premium', label:'PREMIUM'},
+  {id:'s16', tipo:'diesel', label:'DIESEL'},
+];
 
-  const inp = document.createElement('input');
-  inp.type = type;
-  if (type === 'number') { inp.step = '0.01'; inp.placeholder = '0.00'; }
-  inp.dataset.group = group;
-  div.appendChild(inp);
+// Previous readings loaded from Sheet
+let prevReadings = {};
+let prevPrices   = {};
 
-  if (hasNoCap) {
-    const toggle = document.createElement('button');
-    toggle.type = 'button';
-    toggle.dataset.group = group + '-nocap';
-    toggle.dataset.active = 'false';
-    toggle.textContent = 'Sin captura';
-    toggle.style.cssText = [
-      'flex-shrink:0',
-      'padding:6px 10px',
-      'border-radius:6px',
-      'border:1.5px solid var(--rule)',
-      'background:#fff',
-      'color:#aaa',
-      'font-size:12px',
-      'font-weight:600',
-      'cursor:pointer',
-      'white-space:nowrap',
-      'transition:all .15s',
-      'line-height:1'
-    ].join(';');
-    toggle.onclick = function() {
-      const on = this.dataset.active === 'true';
-      this.dataset.active = on ? 'false' : 'true';
-      this.style.background = on ? '#fff' : '#fee2e2';
-      this.style.color = on ? '#aaa' : '#dc2626';
-      this.style.borderColor = on ? 'var(--rule)' : '#dc2626';
-      this.textContent = on ? 'Sin captura' : '⚠️ Sin captura';
-    };
-    div.appendChild(toggle);
-  }
-
-  const btn = document.createElement('button');
-  btn.className = 'btn-remove';
-  btn.textContent = '×';
-  btn.onclick = () => div.remove();
-  div.appendChild(btn);
-
-  list.appendChild(div);
-  inp.focus();
-}
-
-function addCreditItem() {
-  const list = document.getElementById('list-credito');
-
-  const wrapper = document.createElement('div');
-  wrapper.style.cssText = 'background:#faf9f7;border:1.5px solid var(--rule);border-radius:8px;padding:10px;margin-bottom:8px;display:flex;flex-direction:column;gap:8px;position:relative;';
-
-  // Remove button
-  const btn = document.createElement('button');
-  btn.className = 'btn-remove';
-  btn.textContent = '×';
-  btn.style.cssText = 'position:absolute;top:6px;right:8px;font-size:20px;';
-  btn.onclick = () => wrapper.remove();
-
-  // Row 1: Descripción + combustible
-  const row1 = document.createElement('div');
-  row1.style.cssText = 'display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center;padding-right:24px;';
-
-  const desc = document.createElement('input');
-  desc.type = 'text';
-  desc.placeholder = 'Nombre / empresa';
-  desc.dataset.group = 'credito-desc';
-  desc.style.cssText = 'border:1.5px solid var(--rule);border-radius:6px;padding:8px 10px;font-size:14px;width:100%;';
-
-  const sel = document.createElement('select');
-  sel.dataset.group = 'credito-combustible';
-  sel.style.cssText = 'border:1.5px solid var(--rule);border-radius:6px;padding:8px 6px;font-size:13px;font-weight:600;background:#fff;min-width:100px;';
-  [['','Combustible'],['Diesel','⛽ Diesel'],['Regular','🟢 Regular'],['Premium','🟡 Premium']].forEach(([val,txt]) => {
-    const opt = document.createElement('option');
-    opt.value = val; opt.textContent = txt;
-    if (!val) opt.disabled = true;
-    sel.appendChild(opt);
+// ── Build surtidor inputs ────────────────────────────────────────
+function buildSurtidores() {
+  const wrap = document.getElementById('surtidores-wrap');
+  wrap.innerHTML = '';
+  SURTIDORES.forEach(s => {
+    const div = document.createElement('div');
+    div.className = 'field';
+    const prev = prevReadings[s.id] || 0;
+    div.innerHTML = `
+      <span class="fuel-badge ${s.tipo}">${s.label}</span>
+      <input type="number" step="0.001" id="${s.id}" placeholder="0.000"
+             class="${s.tipo}" oninput="recalcular()">
+      <div class="prev-tag">Anterior: ${prev ? prev.toLocaleString('es-PE', {minimumFractionDigits:3}) : '—'}</div>
+    `;
+    wrap.appendChild(div);
   });
+}
 
-  row1.appendChild(desc);
-  row1.appendChild(sel);
-
-  // Row 2: Toggle galones/monto + single input
-  const row2 = document.createElement('div');
-  row2.style.cssText = 'display:flex;flex-direction:column;gap:6px;';
-
-  // Toggle buttons
-  const toggleRow = document.createElement('div');
-  toggleRow.style.cssText = 'display:flex;gap:0;border:1.5px solid var(--rule);border-radius:6px;overflow:hidden;width:fit-content;';
-
-  const btnGal = document.createElement('button');
-  btnGal.type = 'button'; btnGal.textContent = 'Galones';
-  btnGal.style.cssText = 'padding:6px 14px;font-size:12px;font-weight:600;border:none;cursor:pointer;background:var(--ink);color:#fff;';
-  btnGal.dataset.mode = 'galones';
-
-  const btnMonto = document.createElement('button');
-  btnMonto.type = 'button'; btnMonto.textContent = 'Monto S/';
-  btnMonto.style.cssText = 'padding:6px 14px;font-size:12px;font-weight:600;border:none;cursor:pointer;background:#fff;color:#aaa;';
-  btnMonto.dataset.mode = 'monto';
-
-  const inp = document.createElement('input');
-  inp.type = 'number'; inp.step = '0.001'; inp.placeholder = '0.000';
-  inp.dataset.group = 'credito-galones';
-  inp.style.cssText = 'border:1.5px solid var(--rule);border-radius:6px;padding:8px 10px;font-size:15px;font-family:var(--mono);width:100%;';
-
-  const monto = document.createElement('input');
-  monto.type = 'number'; monto.step = '0.01'; monto.placeholder = '0.00';
-  monto.dataset.group = 'credito-monto';
-  monto.style.cssText = 'display:none;border:1.5px solid var(--rule);border-radius:6px;padding:8px 10px;font-size:15px;font-family:var(--mono);width:100%;';
-
-  function setMode(mode) {
-    if (mode === 'galones') {
-      btnGal.style.background = 'var(--ink)'; btnGal.style.color = '#fff';
-      btnMonto.style.background = '#fff'; btnMonto.style.color = '#aaa';
-      inp.style.display = ''; monto.style.display = 'none';
-    } else {
-      btnMonto.style.background = 'var(--ink)'; btnMonto.style.color = '#fff';
-      btnGal.style.background = '#fff'; btnGal.style.color = '#aaa';
-      monto.style.display = ''; inp.style.display = 'none';
+// ── Load previous data from Sheet ───────────────────────────────
+async function loadPrevData() {
+  try {
+    const res  = await fetch(WEBHOOK_URL + '?action=lastTurno');
+    const data = await res.json();
+    if (data && data.readings) {
+      prevReadings = data.readings;
+      prevPrices   = data.prices || {};
+      // Pre-fill prices
+      if (prevPrices.diesel)  document.getElementById('precio-diesel').value  = prevPrices.diesel;
+      if (prevPrices.regular) document.getElementById('precio-regular').value = prevPrices.regular;
+      if (prevPrices.premium) document.getElementById('precio-premium').value = prevPrices.premium;
     }
+  } catch(e) {
+    // No previous data — start fresh
   }
-  btnGal.onclick = () => setMode('galones');
-  btnMonto.onclick = () => setMode('monto');
-
-  toggleRow.appendChild(btnGal);
-  toggleRow.appendChild(btnMonto);
-  row2.appendChild(toggleRow);
-  row2.appendChild(inp);
-  row2.appendChild(monto);
-
-  wrapper.appendChild(btn);
-  wrapper.appendChild(row1);
-  wrapper.appendChild(row2);
-  list.appendChild(wrapper);
-  desc.focus();
+  buildSurtidores();
+  document.getElementById('loading-banner').style.display = 'none';
 }
 
-function addGastoItem() {
-  const list = document.getElementById('list-gasto');
-  const div = document.createElement('div');
-  div.className = 'dynamic-item';
-
-  const desc = document.createElement('input');
-  desc.type = 'text';
-  desc.placeholder = 'Descripción del gasto';
-  desc.className = 'wide';
-  desc.dataset.group = 'gasto-desc';
-
-  const monto = document.createElement('input');
-  monto.type = 'number';
-  monto.step = '0.01';
-  monto.placeholder = 'S/ 0.00';
-  monto.dataset.group = 'gasto-monto';
-
-  const btn = document.createElement('button');
-  btn.className = 'btn-remove';
-  btn.textContent = '×';
-  btn.onclick = () => div.remove();
-
-  div.appendChild(desc);
-  div.appendChild(monto);
-  div.appendChild(btn);
-  list.appendChild(div);
-  desc.focus();
-}
-
-// ── Helpers ──────────────────────────────────────────────────
+// ── Helpers ──────────────────────────────────────────────────────
+function v(id) { return parseFloat(document.getElementById(id)?.value) || 0; }
+function fmt(n) { return 'S/ ' + Math.abs(n).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
 function sumGroup(group) {
   return [...document.querySelectorAll(`[data-group="${group}"]`)]
-    .reduce((s, el) => s + (parseFloat(el.value) || 0), 0);
+    .reduce((s,el) => s + (parseFloat(el.value)||0), 0);
+}
+function updateSubtotal(group, elId) {
+  document.getElementById(elId).textContent = fmt(sumGroup(group));
+  recalcular();
 }
 
-function fmt(n) {
-  return 'S/ ' + n.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+// ── Recalculate live ─────────────────────────────────────────────
+function recalcular() {
+  const pD = v('precio-diesel'), pR = v('precio-regular'), pP = v('precio-premium');
+
+  // Galones por tipo = current - previous
+  const sumSurt = (tipo) => SURTIDORES
+    .filter(s => s.tipo === tipo)
+    .reduce((sum, s) => sum + (v(s.id) - (prevReadings[s.id]||0)), 0);
+
+  const galD = sumSurt('diesel');
+  const galR = sumSurt('regular');
+  const galP = sumSurt('premium');
+
+  const vD = galD * pD, vR = galR * pR, vP = galP * pP;
+  const vTotal = vD + vR + vP;
+  const hasReadings = galD !== 0 || galR !== 0 || galP !== 0;
+
+  // Live calc
+  document.getElementById('lc-gal-diesel').textContent =
+    hasReadings ? `${galD.toFixed(3)} gal → ${fmt(vD)}` : '— gal → S/ —';
+  document.getElementById('lc-gal-regular').textContent =
+    hasReadings ? `${galR.toFixed(3)} gal → ${fmt(vR)}` : '— gal → S/ —';
+  document.getElementById('lc-gal-premium').textContent =
+    hasReadings ? `${galP.toFixed(3)} gal → ${fmt(vP)}` : '— gal → S/ —';
+  document.getElementById('lc-total').textContent =
+    hasReadings ? fmt(vTotal) : 'S/ —';
+
+  // Payments
+  const ef  = v('efectivo');
+  const al  = v('almuerzo');
+  const vi  = sumGroup('visa');
+  const de  = sumGroup('dep');
+  const iz  = sumGroup('izipay');
+  const ya  = sumGroup('yape');
+  const cr  = sumGroup('credito-monto');
+  const ga  = sumGroup('gasto-monto');
+  const cobrado = ef + vi + de + iz + ya + cr - al - ga;
+
+  // Update subtotals display
+  document.getElementById('sub-visa').textContent    = fmt(vi);
+  document.getElementById('sub-dep').textContent     = fmt(de);
+  document.getElementById('sub-izipay').textContent  = fmt(iz);
+  document.getElementById('sub-yape').textContent    = fmt(ya);
+  document.getElementById('sub-credito').textContent = fmt(cr);
+  document.getElementById('sub-gasto').textContent   = fmt(ga);
+
+  // Cuadre preview
+  document.getElementById('cp-teorico').textContent  = hasReadings ? fmt(vTotal) : 'S/ —';
+  document.getElementById('cp-efectivo').textContent = fmt(ef);
+  document.getElementById('cp-visa').textContent     = fmt(vi);
+  document.getElementById('cp-dep').textContent      = fmt(de);
+  document.getElementById('cp-izipay').textContent   = fmt(iz);
+  document.getElementById('cp-yape').textContent     = fmt(ya);
+  document.getElementById('cp-credito').textContent  = fmt(cr);
+  document.getElementById('cp-almuerzo').textContent = '− ' + fmt(al);
+  document.getElementById('cp-gastos').textContent   = '− ' + fmt(ga);
+  document.getElementById('cp-cobrado').textContent  = fmt(cobrado);
+
+  const result = document.getElementById('cp-result');
+  const btn    = document.getElementById('btn-enviar');
+
+  if (!hasReadings) {
+    result.className = 'cuadre-result';
+    result.innerHTML = '<span>Completa las lecturas para ver el cuadre</span><span></span>';
+    btn.className = 'btn-submit ok';
+    btn.textContent = 'ENVIAR REPORTE';
+    return;
+  }
+
+  const diff = vTotal - cobrado;
+  const ok   = Math.abs(diff) < 1;
+
+  if (ok) {
+    result.className = 'cuadre-result ok';
+    result.innerHTML = '<span>✅ Cuadre correcto</span><span>' + fmt(0) + '</span>';
+    btn.className = 'btn-submit ok';
+    btn.textContent = 'ENVIAR REPORTE';
+  } else {
+    result.className = 'cuadre-result warn';
+    result.innerHTML = `<span>⚠️ Diferencia de ${fmt(diff)}</span><span>${diff > 0 ? 'Falta cobrar' : 'Sobra'}</span>`;
+    btn.className = 'btn-submit warn';
+    btn.textContent = `⚠️ ENVIAR CON DIFERENCIA DE ${fmt(diff)}`;
+  }
 }
 
-// ── Calcular ─────────────────────────────────────────────────
-function calcular() {
-  const pD = parseFloat(document.getElementById('precio-diesel').value)  || 0;
-  const pR = parseFloat(document.getElementById('precio-regular').value) || 0;
-  const pP = parseFloat(document.getElementById('precio-premium').value) || 0;
-
-  // Lecturas surtidores
-  const vals = [...document.querySelectorAll('.surtidor')].map(el => parseFloat(el.value) || 0);
-
-  // Galones trabajador
-  const galD = parseFloat(document.getElementById('gal-diesel').value)   || 0;
-  const galR = parseFloat(document.getElementById('gal-regular').value)  || 0;
-  const galP = parseFloat(document.getElementById('gal-premium').value)  || 0;
-
-  // Venta según trabajador
-  const ventaD = galD * pD;
-  const ventaR = galR * pR;
-  const ventaP = galP * pP;
-  const ventaTotal = ventaD + ventaR + ventaP;
-
-  // Pagos recibidos
-  const efectivo = parseFloat(document.getElementById('efectivo').value) || 0;
-  const almuerzo = parseFloat(document.getElementById('almuerzo').value) || 0;
-  const visa     = sumGroup('visa');
-  const dep      = sumGroup('dep');
-  const izipay   = sumGroup('izipay');
-  const yape     = sumGroup('yape');
-  const creditos = sumGroup('credito-monto');
-  const gastos   = sumGroup('gasto-monto');
-
-  const totalCobrado = efectivo + visa + dep + izipay + yape + creditos - almuerzo - gastos;
-  const diferencia   = ventaTotal - totalCobrado;
-  const cuadra       = Math.abs(diferencia) < 1.0;
-
-  // Render
-  const panel  = document.getElementById('result-panel');
-  const header = document.getElementById('result-header');
-  const body   = document.getElementById('result-body');
-
-  panel.style.display = 'block';
-  header.className = 'result-header ' + (cuadra ? 'ok' : 'fail');
-  header.innerHTML = cuadra
-    ? '✅ CUADRE CORRECTO'
-    : '❌ HAY UNA DIFERENCIA DE ' + fmt(Math.abs(diferencia));
-
-  body.innerHTML = `
-    <div class="result-row"><span class="label">Venta Diesel (${galD} gal × S/${pD})</span><span class="value">${fmt(ventaD)}</span></div>
-    <div class="result-row"><span class="label">Venta Regular (${galR} gal × S/${pR})</span><span class="value">${fmt(ventaR)}</span></div>
-    <div class="result-row"><span class="label">Venta Premium (${galP} gal × S/${pP})</span><span class="value">${fmt(ventaP)}</span></div>
-    <div class="result-row total"><span class="label">TOTAL BRUTO (galones × precio)</span><span class="value">${fmt(ventaTotal)}</span></div>
-    <div class="divider"></div>
-    <div class="result-row"><span class="label">Efectivo</span><span class="value">${fmt(efectivo)}</span></div>
-    <div class="result-row"><span class="label">Visa / Tarjeta</span><span class="value">${fmt(visa)}</span></div>
-    <div class="result-row"><span class="label">Depósitos</span><span class="value">${fmt(dep)}</span></div>
-    <div class="result-row"><span class="label">QR Izipay</span><span class="value">${fmt(izipay)}</span></div>
-    <div class="result-row"><span class="label">Yape BCP</span><span class="value">${fmt(yape)}</span></div>
-    <div class="result-row"><span class="label">Créditos</span><span class="value">${fmt(creditos)}</span></div>
-    <div class="result-row"><span class="label">Almuerzo (descuento)</span><span class="value">− ${fmt(almuerzo)}</span></div>
-    <div class="result-row"><span class="label">Gastos extra (descuento)</span><span class="value">− ${fmt(gastos)}</span></div>
-    <div class="divider"></div>
-    <div class="result-row total"><span class="label">TOTAL COBRADO</span><span class="value">${fmt(totalCobrado)}</span></div>
-    <div class="result-row ${cuadra ? 'diff-ok' : 'diff-fail'} total">
-      <span class="label">DIFERENCIA</span>
-      <span class="value">${diferencia >= 0 ? '+' : ''}${fmt(diferencia)}</span>
-    </div>
-  `;
-  panel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+// ── Dynamic items ────────────────────────────────────────────────
+function addSimple(group) {
+  const list = document.getElementById('list-' + group);
+  const div  = document.createElement('div');
+  div.className = 'dynamic-item';
+  const inp = document.createElement('input');
+  inp.type = 'number'; inp.step = '0.01'; inp.placeholder = '0.00';
+  inp.dataset.group = group;
+  inp.oninput = recalcular;
+  const btn = document.createElement('button');
+  btn.className = 'btn-remove'; btn.textContent = '×';
+  btn.onclick = () => { div.remove(); recalcular(); };
+  div.appendChild(inp); div.appendChild(btn);
+  list.appendChild(div); inp.focus();
 }
 
-const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbwfZh37dYW9B7BB3MaVKRvXoxAKyGSN0ZR_zDtwr9FwV-ELpq4vQs7JfEj_phnfb72Ecg/exec";
-
-function getVal(id) {
-  const el = document.getElementById(id);
-  return el ? (parseFloat(el.value) || 0) : 0;
+function addNocap(group) {
+  const list = document.getElementById('list-' + group);
+  const div  = document.createElement('div');
+  div.className = 'dynamic-item';
+  const inp = document.createElement('input');
+  inp.type = 'number'; inp.step = '0.01'; inp.placeholder = '0.00';
+  inp.dataset.group = group;
+  inp.oninput = recalcular;
+  const tog = document.createElement('button');
+  tog.type = 'button'; tog.className = 'nocap-btn';
+  tog.textContent = 'Sin captura'; tog.dataset.active = 'false';
+  tog.dataset.group = group + '-nocap';
+  tog.onclick = function() {
+    const on = this.dataset.active === 'true';
+    this.dataset.active = on ? 'false' : 'true';
+    this.classList.toggle('active', !on);
+    this.textContent = on ? 'Sin captura' : '⚠️ Sin captura';
+  };
+  const btn = document.createElement('button');
+  btn.className = 'btn-remove'; btn.textContent = '×';
+  btn.onclick = () => { div.remove(); recalcular(); };
+  div.appendChild(inp); div.appendChild(tog); div.appendChild(btn);
+  list.appendChild(div); inp.focus();
 }
 
-function sumInputs(group) {
-  return [...document.querySelectorAll('[data-group="' + group + '"]')]
-    .reduce((s, el) => s + (parseFloat(el.value) || 0), 0);
+function addCredito() {
+  const list = document.getElementById('list-credito');
+  const wrap = document.createElement('div');
+  wrap.className = 'credit-wrapper';
+  const rmv = document.createElement('button');
+  rmv.className = 'btn-remove'; rmv.textContent = '×';
+  rmv.onclick = () => { wrap.remove(); recalcular(); };
+  // Row 1: desc + combustible
+  const r1 = document.createElement('div'); r1.className = 'credit-row1';
+  const desc = document.createElement('input');
+  desc.type = 'text'; desc.placeholder = 'Nombre / empresa';
+  desc.dataset.group = 'credito-desc';
+  const sel = document.createElement('select');
+  sel.dataset.group = 'credito-combustible';
+  [['','Combustible'],['Diesel','⛽ Diesel'],['Regular','🟢 Regular'],['Premium','🟡 Premium']]
+    .forEach(([v,t]) => { const o=document.createElement('option'); o.value=v; o.textContent=t; if(!v)o.disabled=true; sel.appendChild(o); });
+  r1.appendChild(desc); r1.appendChild(sel);
+  // Row 2: toggle + input
+  const r2 = document.createElement('div'); r2.style.cssText='display:flex;flex-direction:column;gap:6px;';
+  const tog = document.createElement('div'); tog.className = 'credit-toggle';
+  const bG = document.createElement('button'); bG.type='button'; bG.textContent='Galones'; bG.className='active';
+  const bM = document.createElement('button'); bM.type='button'; bM.textContent='Monto S/';
+  const inpG = document.createElement('input');
+  inpG.type='number'; inpG.step='0.001'; inpG.placeholder='0.000';
+  inpG.dataset.group='credito-galones'; inpG.oninput=recalcular;
+  const inpM = document.createElement('input');
+  inpM.type='number'; inpM.step='0.01'; inpM.placeholder='0.00';
+  inpM.dataset.group='credito-monto'; inpM.style.display='none'; inpM.oninput=recalcular;
+  bG.onclick=()=>{ bG.className='active'; bM.className=''; inpG.style.display=''; inpM.style.display='none'; };
+  bM.onclick=()=>{ bM.className='active'; bG.className=''; inpM.style.display=''; inpG.style.display='none'; };
+  tog.appendChild(bG); tog.appendChild(bM);
+  r2.appendChild(tog); r2.appendChild(inpG); r2.appendChild(inpM);
+  wrap.appendChild(rmv); wrap.appendChild(r1); wrap.appendChild(r2);
+  list.appendChild(wrap); desc.focus();
 }
 
-function getCreditos() {
-  const descs = [...document.querySelectorAll('[data-group="credito-desc"]')].map(el => el.value.trim());
-  const combs = [...document.querySelectorAll('[data-group="credito-combustible"]')].map(el => el.value);
-  const galones = [...document.querySelectorAll('[data-group="credito-galones"]')].map(el => parseFloat(el.value) || 0);
-  const montos = [...document.querySelectorAll('[data-group="credito-monto"]')].map(el => parseFloat(el.value) || 0);
-  const total = montos.reduce((s, v) => s + v, 0);
-  const detalle = descs.map((d, i) => {
-    let p = [d, combs[i]].filter(Boolean).join(' - ');
-    if (galones[i]) p += ' ' + galones[i] + 'gal';
-    if (montos[i]) p += ' S/' + montos[i];
-    return p;
-  }).filter(Boolean).join(' | ');
-  return { total, detalle };
+function addGasto() {
+  const list = document.getElementById('list-gasto');
+  const div  = document.createElement('div'); div.className='dynamic-item';
+  const desc = document.createElement('input');
+  desc.type='text'; desc.placeholder='Descripción'; desc.className='wide';
+  desc.dataset.group='gasto-desc';
+  const monto = document.createElement('input');
+  monto.type='number'; monto.step='0.01'; monto.placeholder='0.00';
+  monto.dataset.group='gasto-monto'; monto.oninput=recalcular;
+  const btn = document.createElement('button');
+  btn.className='btn-remove'; btn.textContent='×';
+  btn.onclick=()=>{ div.remove(); recalcular(); };
+  div.appendChild(desc); div.appendChild(monto); div.appendChild(btn);
+  list.appendChild(div); desc.focus();
 }
 
-function addGasItem() {
+function addGas() {
   const list = document.getElementById('list-gas');
-  const wrapper = document.createElement('div');
-  wrapper.style.cssText = 'background:#fffbeb;border:1.5px solid #fde68a;border-radius:8px;padding:10px;margin-bottom:8px;display:flex;flex-direction:column;gap:8px;position:relative;';
-  const btn = document.createElement('button');
-  btn.type = 'button'; btn.className = 'btn-remove'; btn.textContent = '×';
-  btn.style.cssText = 'position:absolute;top:6px;right:8px;font-size:20px;';
-  btn.onclick = () => wrapper.remove();
-  const row = document.createElement('div');
-  row.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-right:24px;';
-  const tipoLabel = document.createElement('div');
-  tipoLabel.style.cssText = 'display:flex;flex-direction:column;gap:3px;';
-  const tipoLbl = document.createElement('span');
-  tipoLbl.textContent = 'Tipo de gas';
-  tipoLbl.style.cssText = 'font-size:10px;font-weight:600;color:#888;letter-spacing:.04em;';
-  const tipo = document.createElement('input');
-  tipo.type = 'text'; tipo.placeholder = 'Ej: Solgas, Gas economico';
-  tipo.dataset.group = 'gas-tipo';
-  tipo.style.cssText = 'border:1.5px solid #fde68a;border-radius:6px;padding:8px 10px;font-size:14px;width:100%;background:#fff;';
-  tipoLabel.appendChild(tipoLbl); tipoLabel.appendChild(tipo);
-  const montoLabel = document.createElement('div');
-  montoLabel.style.cssText = 'display:flex;flex-direction:column;gap:3px;';
-  const montoLbl = document.createElement('span');
-  montoLbl.textContent = 'Monto S/';
-  montoLbl.style.cssText = 'font-size:10px;font-weight:600;color:#888;letter-spacing:.04em;';
-  const monto = document.createElement('input');
-  monto.type = 'number'; monto.step = '0.01'; monto.placeholder = '0.00';
-  monto.dataset.group = 'gas-monto';
-  monto.style.cssText = 'border:1.5px solid #fde68a;border-radius:6px;padding:8px 10px;font-size:14px;font-family:var(--mono);width:100%;background:#fff;';
-  montoLabel.appendChild(montoLbl); montoLabel.appendChild(monto);
-  row.appendChild(tipoLabel); row.appendChild(montoLabel);
-  wrapper.appendChild(btn); wrapper.appendChild(row);
-  list.appendChild(wrapper); tipo.focus();
+  const wrap = document.createElement('div'); wrap.className='gas-wrapper';
+  const rmv = document.createElement('button');
+  rmv.className='btn-remove'; rmv.style.cssText='position:absolute;top:6px;right:6px;font-size:20px;';
+  rmv.textContent='×'; rmv.onclick=()=>wrap.remove();
+  const t1=document.createElement('div');
+  t1.innerHTML='<div class="item-label">Tipo de gas</div>';
+  const inp1=document.createElement('input'); inp1.type='text'; inp1.placeholder='Ej: Solgas';
+  inp1.dataset.group='gas-tipo'; t1.appendChild(inp1);
+  const t2=document.createElement('div');
+  t2.innerHTML='<div class="item-label">Monto S/</div>';
+  const inp2=document.createElement('input'); inp2.type='number'; inp2.step='0.01'; inp2.placeholder='0.00';
+  inp2.dataset.group='gas-monto'; t2.appendChild(inp2);
+  wrap.appendChild(rmv); wrap.appendChild(t1); wrap.appendChild(t2);
+  list.appendChild(wrap); inp1.focus();
 }
 
-function addGalonerItem() {
+function addGalonera() {
   const list = document.getElementById('list-galonera');
-  const wrapper = document.createElement('div');
-  wrapper.style.cssText = 'background:#f0f9ff;border:1.5px solid #bae6fd;border-radius:8px;padding:10px;margin-bottom:8px;display:flex;flex-direction:column;gap:8px;position:relative;';
-  const btn = document.createElement('button');
-  btn.type = 'button'; btn.className = 'btn-remove'; btn.textContent = '×';
-  btn.style.cssText = 'position:absolute;top:6px;right:8px;font-size:20px;';
-  btn.onclick = () => wrapper.remove();
-  const row = document.createElement('div');
-  row.style.cssText = 'display:grid;grid-template-columns:1fr 1fr;gap:8px;padding-right:24px;';
-  const galLabel = document.createElement('div');
-  galLabel.style.cssText = 'display:flex;flex-direction:column;gap:3px;';
-  const galLbl = document.createElement('span');
-  galLbl.textContent = 'Descripcion';
-  galLbl.style.cssText = 'font-size:10px;font-weight:600;color:#888;letter-spacing:.04em;';
-  const gal = document.createElement('input');
-  gal.type = 'text'; gal.placeholder = 'Ej: 10 gal, 2x5gal...';
-  gal.dataset.group = 'galonera-desc';
-  gal.style.cssText = 'border:1.5px solid #bae6fd;border-radius:6px;padding:8px 10px;font-size:14px;width:100%;background:#fff;';
-  galLabel.appendChild(galLbl); galLabel.appendChild(gal);
-  const montoLabel = document.createElement('div');
-  montoLabel.style.cssText = 'display:flex;flex-direction:column;gap:3px;';
-  const montoLbl = document.createElement('span');
-  montoLbl.textContent = 'Monto S/';
-  montoLbl.style.cssText = 'font-size:10px;font-weight:600;color:#888;letter-spacing:.04em;';
-  const monto = document.createElement('input');
-  monto.type = 'number'; monto.step = '0.01'; monto.placeholder = '0.00';
-  monto.dataset.group = 'galonera-monto';
-  monto.style.cssText = 'border:1.5px solid #bae6fd;border-radius:6px;padding:8px 10px;font-size:14px;font-family:var(--mono);width:100%;background:#fff;';
-  montoLabel.appendChild(montoLbl); montoLabel.appendChild(monto);
-  row.appendChild(galLabel); row.appendChild(montoLabel);
-  wrapper.appendChild(btn); wrapper.appendChild(row);
-  list.appendChild(wrapper); gal.focus();
+  const wrap = document.createElement('div'); wrap.className='galonera-wrapper';
+  const rmv = document.createElement('button');
+  rmv.className='btn-remove'; rmv.style.cssText='position:absolute;top:6px;right:6px;font-size:20px;';
+  rmv.textContent='×'; rmv.onclick=()=>wrap.remove();
+  const t1=document.createElement('div');
+  t1.innerHTML='<div class="item-label">Descripción</div>';
+  const inp1=document.createElement('input'); inp1.type='text'; inp1.placeholder='Ej: 10 gal';
+  inp1.dataset.group='galonera-desc'; t1.appendChild(inp1);
+  const t2=document.createElement('div');
+  t2.innerHTML='<div class="item-label">Monto S/</div>';
+  const inp2=document.createElement('input'); inp2.type='number'; inp2.step='0.01'; inp2.placeholder='0.00';
+  inp2.dataset.group='galonera-monto'; t2.appendChild(inp2);
+  wrap.appendChild(rmv); wrap.appendChild(t1); wrap.appendChild(t2);
+  list.appendChild(wrap); inp1.focus();
 }
 
+// ── Build pagos array ────────────────────────────────────────────
 function buildPagos() {
   const pagos = [];
-
-  // Visa
   document.querySelectorAll('[data-group="visa"]').forEach(el => {
-    const m = parseFloat(el.value) || 0;
-    if (m) pagos.push({ tipo: "Visa", monto: m, sinCaptura: false });
+    const m=parseFloat(el.value)||0; if(m) pagos.push({tipo:'Visa',monto:m,sinCaptura:false});
   });
-
-  // Deposito
   document.querySelectorAll('[data-group="dep"]').forEach(el => {
-    const m = parseFloat(el.value) || 0;
-    if (m) pagos.push({ tipo: "Deposito", monto: m, sinCaptura: false });
+    const m=parseFloat(el.value)||0; if(m) pagos.push({tipo:'Deposito',monto:m,sinCaptura:false});
   });
-
-  // Izipay
-  const izipayInputs  = [...document.querySelectorAll('[data-group="izipay"]')];
-  const izipayNoCaps  = [...document.querySelectorAll('[data-group="izipay-nocap"]')];
-  izipayInputs.forEach((el, i) => {
-    const m = parseFloat(el.value) || 0;
-    if (m) pagos.push({
-      tipo: "Izipay",
-      monto: m,
-      sinCaptura: izipayNoCaps[i]?.dataset.active === 'true'
-    });
-  });
-
-  // Yape
-  const yapeInputs  = [...document.querySelectorAll('[data-group="yape"]')];
-  const yapeNoCaps  = [...document.querySelectorAll('[data-group="yape-nocap"]')];
-  yapeInputs.forEach((el, i) => {
-    const m = parseFloat(el.value) || 0;
-    if (m) pagos.push({
-      tipo: "Yape",
-      monto: m,
-      sinCaptura: yapeNoCaps[i]?.dataset.active === 'true'
-    });
-  });
-
+  const izInputs=[...document.querySelectorAll('[data-group="izipay"]')];
+  const izNocap=[...document.querySelectorAll('[data-group="izipay-nocap"]')];
+  izInputs.forEach((el,i)=>{ const m=parseFloat(el.value)||0; if(m) pagos.push({tipo:'Izipay',monto:m,sinCaptura:izNocap[i]?.dataset.active==='true'}); });
+  const yaInputs=[...document.querySelectorAll('[data-group="yape"]')];
+  const yaNocap=[...document.querySelectorAll('[data-group="yape-nocap"]')];
+  yaInputs.forEach((el,i)=>{ const m=parseFloat(el.value)||0; if(m) pagos.push({tipo:'Yape',monto:m,sinCaptura:yaNocap[i]?.dataset.active==='true'}); });
   return pagos;
 }
 
+// ── Send ─────────────────────────────────────────────────────────
 async function enviar() {
-  const btn = document.querySelector('.btn-submit');
-  btn.textContent = 'Enviando...';
-  btn.disabled = true;
+  const btn = document.getElementById('btn-enviar');
+  btn.textContent = 'Enviando...'; btn.disabled = true;
 
-  const creditos = getCreditos();
   const pagos    = buildPagos();
+  const creditos = {
+    total:   sumGroup('credito-monto'),
+    detalle: [...document.querySelectorAll('[data-group="credito-desc"]')]
+               .map((el,i)=>{
+                 const combs=[...document.querySelectorAll('[data-group="credito-combustible"]')];
+                 const gals=[...document.querySelectorAll('[data-group="credito-galones"]')];
+                 const mons=[...document.querySelectorAll('[data-group="credito-monto"]')];
+                 let p=[el.value,combs[i]?.value].filter(Boolean).join(' - ');
+                 if(parseFloat(gals[i]?.value)) p+=` ${gals[i].value}gal`;
+                 if(parseFloat(mons[i]?.value)) p+=` S/${mons[i].value}`;
+                 return p;
+               }).filter(Boolean).join(' | ')
+  };
 
-  // Totals from individual payments
-  const visaTotal   = pagos.filter(p=>p.tipo==='Visa').reduce((s,p)=>s+p.monto,0);
-  const depTotal    = pagos.filter(p=>p.tipo==='Deposito').reduce((s,p)=>s+p.monto,0);
-  const izipayTotal = pagos.filter(p=>p.tipo==='Izipay').reduce((s,p)=>s+p.monto,0);
-  const yapeTotal   = pagos.filter(p=>p.tipo==='Yape').reduce((s,p)=>s+p.monto,0);
+  // Current readings
+  const readings = {};
+  SURTIDORES.forEach(s => { readings[s.id] = v(s.id); });
 
   const payload = {
     fecha: document.getElementById('fecha').value,
     turno: document.querySelector('input[name="turno"]:checked').value,
-    precioDiesel:  getVal('precio-diesel'),
-    precioRegular: getVal('precio-regular'),
-    precioPremium: getVal('precio-premium'),
-    s1:  getVal('s1'),  s2:  getVal('s2'),  s3:  getVal('s3'),  s4:  getVal('s4'),
-    s5:  getVal('s5'),  s6:  getVal('s6'),  s7:  getVal('s7'),  s8:  getVal('s8'),
-    s9:  getVal('s9'),  s10: getVal('s10'), s11: getVal('s11'), s12: getVal('s12'),
-    s13: getVal('s13'), s14: getVal('s14'), s15: getVal('s15'), s16: getVal('s16'),
-    efectivo:       getVal('efectivo'),
-    almuerzo:       getVal('almuerzo'),
-    visaTotal, depTotal, izipayTotal, yapeTotal,
+    precioDiesel:  v('precio-diesel'),
+    precioRegular: v('precio-regular'),
+    precioPremium: v('precio-premium'),
+    ...Object.fromEntries(SURTIDORES.map(s=>[s.id, v(s.id)])),
+    efectivo: v('efectivo'), almuerzo: v('almuerzo'),
+    visaTotal:    pagos.filter(p=>p.tipo==='Visa').reduce((s,p)=>s+p.monto,0),
+    depTotal:     pagos.filter(p=>p.tipo==='Deposito').reduce((s,p)=>s+p.monto,0),
+    izipayTotal:  pagos.filter(p=>p.tipo==='Izipay').reduce((s,p)=>s+p.monto,0),
+    yapeTotal:    pagos.filter(p=>p.tipo==='Yape').reduce((s,p)=>s+p.monto,0),
     creditosTotal:   creditos.total,
     creditosDetalle: creditos.detalle,
-    gastosTotal:  [...document.querySelectorAll('[data-group="gasto-monto"]')].reduce((s,el)=>s+(parseFloat(el.value)||0),0),
+    gastosTotal:  sumGroup('gasto-monto'),
     gastosDetalle:[...document.querySelectorAll('[data-group="gasto-desc"]')].map((el,i)=>{const m=document.querySelectorAll('[data-group="gasto-monto"]');return el.value?el.value+' S/'+(parseFloat(m[i]?.value)||0):''}).filter(Boolean).join(' | '),
-    galDiesel:  getVal('gal-diesel'),
-    galRegular: getVal('gal-regular'),
-    galPremium: getVal('gal-premium'),
-    varD1:  getVal('var-d1'),
-    varReg: getVal('var-reg'),
-    varPrem:getVal('var-prem'),
-    varD2:  getVal('var-d2'),
-    gasTotal:   [...document.querySelectorAll('[data-group="gas-monto"]')].reduce((s,el)=>s+(parseFloat(el.value)||0),0),
-    gasDetalle: [...document.querySelectorAll('[data-group="gas-tipo"]')].map((el,i)=>{const m=document.querySelectorAll('[data-group="gas-monto"]');return el.value?el.value+' S/'+(parseFloat(m[i]?.value)||0):''}).filter(Boolean).join(' | '),
+    galDiesel:  v('gal-diesel'), galRegular: v('gal-regular'), galPremium: v('gal-premium'),
+    varD1: v('var-d1'), varReg: v('var-reg'), varPrem: v('var-prem'), varD2: v('var-d2'),
+    gasTotal:    [...document.querySelectorAll('[data-group="gas-monto"]')].reduce((s,el)=>s+(parseFloat(el.value)||0),0),
+    gasDetalle:  [...document.querySelectorAll('[data-group="gas-tipo"]')].map((el,i)=>{const m=document.querySelectorAll('[data-group="gas-monto"]');return el.value?el.value+' S/'+(parseFloat(m[i]?.value)||0):''}).filter(Boolean).join(' | '),
     galoneraTotal:   [...document.querySelectorAll('[data-group="galonera-monto"]')].reduce((s,el)=>s+(parseFloat(el.value)||0),0),
     galoneraDetalle: [...document.querySelectorAll('[data-group="galonera-desc"]')].map((el,i)=>{const m=document.querySelectorAll('[data-group="galonera-monto"]');return el.value?el.value+' S/'+(parseFloat(m[i]?.value)||0):''}).filter(Boolean).join(' | '),
     pagos,
   };
 
-  try {
-    // Google Apps Script requires no-cors; we fire and show confirmation immediately
-    fetch(WEBHOOK_URL, {
-      method: 'POST',
-      mode: 'no-cors',
-      headers: {'Content-Type': 'text/plain'},
-      body: JSON.stringify(payload)
-    });
-    // Don't await — show confirmation right away
-    document.querySelector('.container').innerHTML = `
-      <div style="min-height:80vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 20px;gap:20px;">
-        <div style="font-size:64px;">&#x2705;</div>
-        <div style="font-size:22px;font-weight:700;color:var(--ink);">Reporte enviado</div>
-        <div style="font-size:14px;color:#666;max-width:280px;line-height:1.6;">
-          El turno <strong>${payload.turno}</strong> del <strong>${payload.fecha}</strong> fue registrado correctamente.
-        </div>
-        <div style="margin-top:20px;font-size:12px;color:#bbb;">Puedes cerrar esta pagina.</div>
-      </div>`;
-  } catch(err) {
-    btn.textContent = 'Error al enviar - intentar de nuevo';
-    btn.style.background = '#fee2e2';
-    btn.style.color = '#dc2626';
-    btn.disabled = false;
-  }
+  fetch(WEBHOOK_URL, {
+    method:'POST', mode:'no-cors',
+    headers:{'Content-Type':'text/plain'},
+    body: JSON.stringify(payload)
+  });
+
+  // Show confirmation
+  document.querySelector('.container').innerHTML = `
+    <div style="min-height:80vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 20px;gap:20px;">
+      <div style="font-size:64px;">✅</div>
+      <div style="font-size:22px;font-weight:700;">Reporte enviado</div>
+      <div style="font-size:14px;color:#666;max-width:280px;line-height:1.6;">
+        Turno <strong>${payload.turno}</strong> del <strong>${payload.fecha}</strong> registrado.
+      </div>
+      <div style="font-size:12px;color:#bbb;margin-top:10px;">Puedes cerrar esta página.</div>
+    </div>`;
 }
+
+// ── Init ─────────────────────────────────────────────────────────
+document.getElementById('fecha').valueAsDate = new Date();
+loadPrevData();
 </script>
 </body>
 </html>
