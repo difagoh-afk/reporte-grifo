@@ -365,7 +365,7 @@ input[type=checkbox] { -webkit-appearance: checkbox; appearance: checkbox; }
   <div class="section">
     <div class="section-title"><span class="dot dot-dark"></span> Precios de combustible</div>
     <div class="card"><div class="card-body">
-      <p style="font-size:12px;color:var(--gray);margin-bottom:10px;">Solo cambiar si hubo variación hoy.</p>
+      <p style="font-size:12px;color:var(--gray);margin-bottom:10px;">Solo cambiar si hubo cambio de precio.</p>
       <div class="grid-3">
         <div class="field">
           <span class="fuel-badge diesel">DIESEL</span>
@@ -392,7 +392,7 @@ input[type=checkbox] { -webkit-appearance: checkbox; appearance: checkbox; }
       </div>
       <!-- Live calc -->
       <div class="live-calc" id="live-calc">
-        <div class="live-calc-title">⚡ Venta calculada en tiempo real</div>
+        <div class="live-calc-title">⚡ Venta calculada</div>
         <div class="live-row">
           <span class="lbl">Diesel</span>
           <span class="val" id="lc-gal-diesel">— gal → S/ —</span>
@@ -406,7 +406,7 @@ input[type=checkbox] { -webkit-appearance: checkbox; appearance: checkbox; }
           <span class="val" id="lc-gal-premium">— gal → S/ —</span>
         </div>
         <div class="live-row total-row">
-          <span class="lbl">TOTAL TEÓRICO</span>
+          <span class="lbl">TOTAL VENDIDO</span>
           <span class="val" id="lc-total">S/ —</span>
         </div>
       </div>
@@ -523,19 +523,6 @@ input[type=checkbox] { -webkit-appearance: checkbox; appearance: checkbox; }
     </div></div>
   </div>
 
-  <!-- GALONES TRABAJADOR -->
-  <div class="section">
-    <div class="section-title"><span class="dot dot-diesel"></span> Galones vendidos (tu cálculo)</div>
-    <div class="card"><div class="card-body">
-      <div style="display:flex;flex-direction:column;gap:8px;">
-        <div class="field"><span class="fuel-badge diesel">DIESEL</span>
-          <input type="number" step="0.001" id="gal-diesel" placeholder="0.000" class="diesel" oninput="recalcular()"></div>
-        <div class="field"><span class="fuel-badge regular">REGULAR</span>
-          <input type="number" step="0.001" id="gal-regular" placeholder="0.000" class="regular" oninput="recalcular()"></div>
-        <div class="field"><span class="fuel-badge premium">PREMIUM</span>
-          <input type="number" step="0.001" id="gal-premium" placeholder="0.000" class="premium" oninput="recalcular()"></div>
-      </div>
-    </div></div>
   </div>
 
   <!-- CUADRE PREVIEW -->
@@ -545,7 +532,7 @@ input[type=checkbox] { -webkit-appearance: checkbox; appearance: checkbox; }
       <div class="cuadre-header">Cuadre antes de enviar</div>
       <div class="cuadre-body">
         <div class="cuadre-row big">
-          <span class="cl">Venta teórica (sistema)</span>
+          <span class="cl">Venta total</span>
           <span class="cv" id="cp-teorico">S/ —</span>
         </div>
         <div class="cuadre-divider"></div>
@@ -555,8 +542,8 @@ input[type=checkbox] { -webkit-appearance: checkbox; appearance: checkbox; }
         <div class="cuadre-row"><span class="cl">Izipay</span><span class="cv" id="cp-izipay">S/ 0.00</span></div>
         <div class="cuadre-row"><span class="cl">Yape</span><span class="cv" id="cp-yape">S/ 0.00</span></div>
         <div class="cuadre-row"><span class="cl">Créditos</span><span class="cv" id="cp-credito">S/ 0.00</span></div>
-        <div class="cuadre-row"><span class="cl">Almuerzo (descuento)</span><span class="cv" id="cp-almuerzo">− S/ 0.00</span></div>
-        <div class="cuadre-row"><span class="cl">Gastos extra (descuento)</span><span class="cv" id="cp-gastos">− S/ 0.00</span></div>
+        <div class="cuadre-row"><span class="cl">Almuerzo</span><span class="cv" id="cp-almuerzo">S/ 0.00</span></div>
+        <div class="cuadre-row"><span class="cl">Gastos extra</span><span class="cv" id="cp-gastos">S/ 0.00</span></div>
         <div class="cuadre-divider"></div>
         <div class="cuadre-row big">
           <span class="cl">Total cobrado</span>
@@ -564,7 +551,7 @@ input[type=checkbox] { -webkit-appearance: checkbox; appearance: checkbox; }
         </div>
       </div>
       <div class="cuadre-result" id="cp-result">
-        <span>Completa las lecturas para ver el cuadre</span>
+        <span></span>
         <span></span>
       </div>
     </div>
@@ -616,7 +603,7 @@ function buildSurtidores() {
       <span class="fuel-badge ${s.tipo}">${s.label}</span>
       <input type="number" step="0.001" id="${s.id}" placeholder="0.000"
              class="${s.tipo}" oninput="recalcular()">
-      <div class="prev-tag">Anterior: ${prev ? prev.toLocaleString('es-PE', {minimumFractionDigits:3}) : '—'}</div>
+      <div class="prev-tag">Anterior: ${prev ? prev.toFixed(3) : '—'}</div>
     `;
     wrap.appendChild(div);
   });
@@ -690,7 +677,7 @@ function recalcular() {
   const ya  = sumGroup('yape');
   const cr  = sumGroup('credito-monto');
   const ga  = sumGroup('gasto-monto');
-  const cobrado = ef + vi + de + iz + ya + cr - al - ga;
+  const cobrado = ef + vi + de + iz + ya + cr + al + ga;
 
   // Update subtotals display
   document.getElementById('sub-visa').textContent    = fmt(vi);
@@ -708,8 +695,8 @@ function recalcular() {
   document.getElementById('cp-izipay').textContent   = fmt(iz);
   document.getElementById('cp-yape').textContent     = fmt(ya);
   document.getElementById('cp-credito').textContent  = fmt(cr);
-  document.getElementById('cp-almuerzo').textContent = '− ' + fmt(al);
-  document.getElementById('cp-gastos').textContent   = '− ' + fmt(ga);
+  document.getElementById('cp-almuerzo').textContent = fmt(al);
+  document.getElementById('cp-gastos').textContent   = fmt(ga);
   document.getElementById('cp-cobrado').textContent  = fmt(cobrado);
 
   const result = document.getElementById('cp-result');
@@ -717,7 +704,7 @@ function recalcular() {
 
   if (!hasReadings) {
     result.className = 'cuadre-result';
-    result.innerHTML = '<span>Completa las lecturas para ver el cuadre</span><span></span>';
+    result.innerHTML = '<span></span><span></span>';
     btn.className = 'btn-submit ok';
     btn.textContent = 'ENVIAR REPORTE';
     return;
@@ -926,7 +913,7 @@ async function enviar() {
     creditosDetalle: creditos.detalle,
     gastosTotal:  sumGroup('gasto-monto'),
     gastosDetalle:[...document.querySelectorAll('[data-group="gasto-desc"]')].map((el,i)=>{const m=document.querySelectorAll('[data-group="gasto-monto"]');return el.value?el.value+' S/'+(parseFloat(m[i]?.value)||0):''}).filter(Boolean).join(' | '),
-    galDiesel:  v('gal-diesel'), galRegular: v('gal-regular'), galPremium: v('gal-premium'),
+    galDiesel: 0, galRegular: 0, galPremium: 0,
     varD1: v('var-d1'), varReg: v('var-reg'), varPrem: v('var-prem'), varD2: v('var-d2'),
     gasTotal:    [...document.querySelectorAll('[data-group="gas-monto"]')].reduce((s,el)=>s+(parseFloat(el.value)||0),0),
     gasDetalle:  [...document.querySelectorAll('[data-group="gas-tipo"]')].map((el,i)=>{const m=document.querySelectorAll('[data-group="gas-monto"]');return el.value?el.value+' S/'+(parseFloat(m[i]?.value)||0):''}).filter(Boolean).join(' | '),
