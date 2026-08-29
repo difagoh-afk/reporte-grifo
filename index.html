@@ -483,9 +483,9 @@ function addCredito() {
   desc.style.cssText='border:1.5px solid var(--border);border-radius:6px;padding:8px 10px;font-size:14px;width:100%;';
   const sel = document.createElement('select'); sel.dataset.group='credito-combustible';
   sel.style.cssText='border:1.5px solid var(--border);border-radius:6px;padding:8px 6px;font-size:13px;font-weight:600;background:#fff;min-width:100px;';
-  [['','Combustible'],['Diesel','Diesel'],['Regular','Regular'],['Premium','Premium']].forEach(function(pair) {
+  [['Diesel','Diesel'],['Regular','Regular'],['Premium','Premium']].forEach(function(pair) {
     const o = document.createElement('option'); o.value=pair[0]; o.textContent=pair[1];
-    if (!pair[0]) { o.disabled=true; o.selected=true; } sel.appendChild(o);
+    if (pair[0]==='Diesel') o.selected=true; sel.appendChild(o);
   });
   r1.appendChild(desc); r1.appendChild(sel);
 
