@@ -143,28 +143,14 @@ body { font-family:'Segoe UI',system-ui,sans-serif; background:var(--bg); color:
 </div>
 
 <div id="loading-banner" class="loading-banner">
-  &#9203; Cargando datos del turno anterior...
+  &#9203; Cargando datos...
 </div>
 
 <div class="container">
 
-  <div class="section">
-    <div class="grid-2" style="margin-top:4px;">
-      <div class="field">
-        <label>Fecha</label>
-        <input type="date" id="fecha">
-      </div>
-      <div class="field">
-        <label>Turno</label>
-        <div class="turno-toggle">
-          <input type="radio" name="turno" id="t-dia" value="Dia" checked>
-          <label for="t-dia">Dia</label>
-          <input type="radio" name="turno" id="t-noche" value="Noche">
-          <label for="t-noche">Noche</label>
-        </div>
-      </div>
-    </div>
-  </div>
+  <!-- fecha y turno ocultos - se calculan automaticamente -->
+  <input type="hidden" id="fecha">
+  <input type="hidden" id="turno-val" value="Dia">
 
   <div class="section">
     <div class="section-title"><span class="dot dot-dark"></span> Precios de combustible</div>
@@ -324,7 +310,7 @@ body { font-family:'Segoe UI',system-ui,sans-serif; background:var(--bg); color:
 </div>
 
 <script>
-const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbw7WAEG2c4mJrEKRoJoc6V8ykRDb5Sb6MpXK3QQzGz85zDowxorarv1pczWzLRicKHPqw/exec";
+const WEBHOOK_URL = "https://script.google.com/macros/s/AKfycbyk437kDZ93yVUby4G4EZWeC1s33gZFz7CdFH6G9OenY6WCEOvgv-e5pqCzLexn99-J/exec";
 
 const SURTIDORES = [
   {id:'s1', tipo:'diesel', label:'DIESEL'},   {id:'s2', tipo:'diesel', label:'DIESEL'},
@@ -368,9 +354,39 @@ async function loadPrevData() {
       if (prevPrices.regular) document.getElementById('precio-regular').value = prevPrices.regular;
       if (prevPrices.premium) document.getElementById('precio-premium').value = prevPrices.premium;
     }
+    // Auto-set next turno and fecha based on last report
+    if (data && data.lastTurno && data.lastFecha) {
+      const lastTurno = data.lastTurno;
+      const lastFecha = data.lastFecha; // "2026-08-29"
+
+      if (lastTurno === 'Noche') {
+        // Next is Dia, next calendar day
+        const d = new Date(lastFecha + 'T12:00:00');
+        d.setDate(d.getDate() + 1);
+        document.getElementById('fecha').value = d.toISOString().split('T')[0];
+        document.getElementById('turno-val').value = 'Dia';
+      } else {
+        // Last was Dia, next is Noche, same day
+        document.getElementById('fecha').value = lastFecha;
+        document.getElementById('turno-val').value = 'Noche';
+      }
+    }
   } catch(e) {}
   buildSurtidores();
-  document.getElementById('loading-banner').style.display = 'none';
+  // Show detected turno/fecha as info banner
+  const turnoVal = document.getElementById('turno-val').value;
+  const fechaVal = document.getElementById('fecha').value;
+  const banner = document.getElementById('loading-banner');
+  if (fechaVal) {
+    const [y,m,d] = fechaVal.split('-');
+    const meses = ['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    banner.innerHTML = '&#9201; Turno <strong>' + turnoVal + '</strong> &mdash; ' + d + ' ' + meses[parseInt(m)] + ' ' + y;
+    banner.style.background = '#f0fdf4';
+    banner.style.borderColor = '#86efac';
+    banner.style.color = '#15803d';
+  } else {
+    banner.style.display = 'none';
+  }
 }
 
 function v(id) { return parseFloat(document.getElementById(id)?.value) || 0; }
@@ -597,7 +613,7 @@ async function enviar() {
 
   const payload = {
     fecha: document.getElementById('fecha').value,
-    turno: document.querySelector('input[name="turno"]:checked').value,
+    turno: document.getElementById('turno-val').value,
     precioDiesel: v('precio-diesel'), precioRegular: v('precio-regular'), precioPremium: v('precio-premium'),
     s1:v('s1'),s2:v('s2'),s3:v('s3'),s4:v('s4'),s5:v('s5'),s6:v('s6'),s7:v('s7'),s8:v('s8'),
     s9:v('s9'),s10:v('s10'),s11:v('s11'),s12:v('s12'),s13:v('s13'),s14:v('s14'),s15:v('s15'),s16:v('s16'),
@@ -629,7 +645,6 @@ async function enviar() {
     '<div style="font-size:12px;color:#bbb;margin-top:10px;">Puedes cerrar esta pagina.</div></div>';
 }
 
-document.getElementById('fecha').valueAsDate = new Date();
 loadPrevData();
 </script>
 </body>
