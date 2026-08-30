@@ -379,11 +379,16 @@ async function loadPrevData() {
   const banner = document.getElementById('loading-banner');
   if (fechaVal) {
     const [y,m,d] = fechaVal.split('-');
-    const meses = ['','Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-    banner.innerHTML = '&#9201; Turno <strong>' + turnoVal + '</strong> &mdash; ' + d + ' ' + meses[parseInt(m)] + ' ' + y;
-    banner.style.background = '#f0fdf4';
-    banner.style.borderColor = '#86efac';
-    banner.style.color = '#15803d';
+    const meses = ['','Ene','Feb','Mar','Abr','May','Jun','','Ago','Sep','Oct','Nov','Dic'];
+    const mesesFull = ['','Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
+    banner.innerHTML = 'Turno ' + turnoVal + ' &mdash; ' + d + ' de ' + mesesFull[parseInt(m)] + ' ' + y;
+    banner.style.background = 'var(--bg)';
+    banner.style.borderBottom = '2px solid var(--border)';
+    banner.style.color = 'var(--ink)';
+    banner.style.fontWeight = '700';
+    banner.style.fontSize = '18px';
+    banner.style.justifyContent = 'center';
+    banner.style.padding = '16px 18px';
   } else {
     banner.style.display = 'none';
   }
