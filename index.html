@@ -602,6 +602,168 @@ function buildPagos() {
   return pagos;
 }
 
+// ── Auto-save to localStorage ────────────────────────────────
+function guardarBorrador() {
+  try {
+    const datos = {
+      efectivo: document.getElementById('efectivo')?.value || '',
+      almuerzo: document.getElementById('almuerzo')?.value || '',
+      varD1: document.getElementById('var-d1')?.value || '',
+      varReg: document.getElementById('var-reg')?.value || '',
+      varPrem: document.getElementById('var-prem')?.value || '',
+      varD2: document.getElementById('var-d2')?.value || '',
+      precioDiesel: document.getElementById('precio-diesel')?.value || '',
+      precioRegular: document.getElementById('precio-regular')?.value || '',
+      precioPremium: document.getElementById('precio-premium')?.value || '',
+      surtidores: {},
+      visas: [],
+      deps: [],
+      izipays: [],
+      yapes: [],
+      creditos: [],
+      gastos: [],
+      gas: [],
+      galoneras: [],
+    };
+    // Surtidores
+    ['s1','s2','s3','s4','s5','s6','s7','s8',
+     's9','s10','s11','s12','s13','s14','s15','s16'].forEach(id => {
+      datos.surtidores[id] = document.getElementById(id)?.value || '';
+    });
+    // Dynamic lists
+    document.querySelectorAll('[data-group="visa"]').forEach(el => datos.visas.push(el.value));
+    document.querySelectorAll('[data-group="dep"]').forEach(el => datos.deps.push(el.value));
+    document.querySelectorAll('[data-group="izipay"]').forEach((el,i) => {
+      const nc = document.querySelectorAll('[data-group="izipay-nocap"]')[i];
+      datos.izipays.push({v: el.value, nc: nc?.dataset.active === 'true'});
+    });
+    document.querySelectorAll('[data-group="yape"]').forEach((el,i) => {
+      const nc = document.querySelectorAll('[data-group="yape-nocap"]')[i];
+      datos.yapes.push({v: el.value, nc: nc?.dataset.active === 'true'});
+    });
+    document.querySelectorAll('[data-group="credito-desc"]').forEach((el,i) => {
+      const combs = document.querySelectorAll('[data-group="credito-combustible"]');
+      const gals  = document.querySelectorAll('[data-group="credito-galones"]');
+      const mons  = document.querySelectorAll('[data-group="credito-monto"]');
+      datos.creditos.push({desc: el.value, comb: combs[i]?.value, gal: gals[i]?.value, mon: mons[i]?.value});
+    });
+    document.querySelectorAll('[data-group="gasto-desc"]').forEach((el,i) => {
+      const mons = document.querySelectorAll('[data-group="gasto-monto"]');
+      datos.gastos.push({desc: el.value, mon: mons[i]?.value});
+    });
+    document.querySelectorAll('[data-group="gas-tipo"]').forEach((el,i) => {
+      const mons = document.querySelectorAll('[data-group="gas-monto"]');
+      datos.gas.push({tipo: el.value, mon: mons[i]?.value});
+    });
+    document.querySelectorAll('[data-group="galonera-desc"]').forEach((el,i) => {
+      const mons = document.querySelectorAll('[data-group="galonera-monto"]');
+      datos.galoneras.push({desc: el.value, mon: mons[i]?.value});
+    });
+    localStorage.setItem('borrador_grifo', JSON.stringify(datos));
+  } catch(e) {}
+}
+
+function cargarBorrador() {
+  try {
+    const saved = localStorage.getItem('borrador_grifo');
+    if (!saved) return;
+    const datos = JSON.parse(saved);
+
+    // Basic fields
+    if (datos.efectivo) document.getElementById('efectivo').value = datos.efectivo;
+    if (datos.almuerzo) document.getElementById('almuerzo').value = datos.almuerzo;
+    if (datos.varD1)    document.getElementById('var-d1').value   = datos.varD1;
+    if (datos.varReg)   document.getElementById('var-reg').value  = datos.varReg;
+    if (datos.varPrem)  document.getElementById('var-prem').value = datos.varPrem;
+    if (datos.varD2)    document.getElementById('var-d2').value   = datos.varD2;
+    if (datos.precioDiesel)  document.getElementById('precio-diesel').value  = datos.precioDiesel;
+    if (datos.precioRegular) document.getElementById('precio-regular').value = datos.precioRegular;
+    if (datos.precioPremium) document.getElementById('precio-premium').value = datos.precioPremium;
+
+    // Surtidores
+    Object.entries(datos.surtidores || {}).forEach(([id, val]) => {
+      const el = document.getElementById(id);
+      if (el && val) el.value = val;
+    });
+
+    // Dynamic lists
+    (datos.visas || []).forEach(v => { if(v) { addSimple('visa'); document.querySelectorAll('[data-group="visa"]').slice(-1)[0].value = v; }});
+    (datos.deps  || []).forEach(v => { if(v) { addSimple('dep');  document.querySelectorAll('[data-group="dep"]').slice(-1)[0].value  = v; }});
+    (datos.izipays || []).forEach(item => {
+      if (!item.v) return;
+      addNocap('izipay');
+      const inps = [...document.querySelectorAll('[data-group="izipay"]')];
+      const ncs  = [...document.querySelectorAll('[data-group="izipay-nocap"]')];
+      inps[inps.length-1].value = item.v;
+      if (item.nc && ncs[ncs.length-1]) { ncs[ncs.length-1].dataset.active='true'; ncs[ncs.length-1].classList.add('active'); ncs[ncs.length-1].textContent='Sin captura'; }
+    });
+    (datos.yapes || []).forEach(item => {
+      if (!item.v) return;
+      addNocap('yape');
+      const inps = [...document.querySelectorAll('[data-group="yape"]')];
+      const ncs  = [...document.querySelectorAll('[data-group="yape-nocap"]')];
+      inps[inps.length-1].value = item.v;
+      if (item.nc && ncs[ncs.length-1]) { ncs[ncs.length-1].dataset.active='true'; ncs[ncs.length-1].classList.add('active'); ncs[ncs.length-1].textContent='Sin captura'; }
+    });
+    (datos.creditos || []).forEach(item => {
+      if (!item.desc && !item.mon) return;
+      addCredito();
+      const descs = [...document.querySelectorAll('[data-group="credito-desc"]')];
+      const combs = [...document.querySelectorAll('[data-group="credito-combustible"]')];
+      const gals  = [...document.querySelectorAll('[data-group="credito-galones"]')];
+      const mons  = [...document.querySelectorAll('[data-group="credito-monto"]')];
+      const i = descs.length - 1;
+      if (descs[i]) descs[i].value = item.desc || '';
+      if (combs[i] && item.comb) combs[i].value = item.comb;
+      if (gals[i])  gals[i].value  = item.gal || '';
+      if (mons[i])  mons[i].value  = item.mon || '';
+    });
+    (datos.gastos || []).forEach(item => {
+      if (!item.desc && !item.mon) return;
+      addGasto();
+      const descs = [...document.querySelectorAll('[data-group="gasto-desc"]')];
+      const mons  = [...document.querySelectorAll('[data-group="gasto-monto"]')];
+      const i = descs.length - 1;
+      if (descs[i]) descs[i].value = item.desc || '';
+      if (mons[i])  mons[i].value  = item.mon  || '';
+    });
+    (datos.gas || []).forEach(item => {
+      if (!item.tipo && !item.mon) return;
+      addGas();
+      const tipos = [...document.querySelectorAll('[data-group="gas-tipo"]')];
+      const mons  = [...document.querySelectorAll('[data-group="gas-monto"]')];
+      const i = tipos.length - 1;
+      if (tipos[i]) tipos[i].value = item.tipo || '';
+      if (mons[i])  mons[i].value  = item.mon  || '';
+    });
+    (datos.galoneras || []).forEach(item => {
+      if (!item.desc && !item.mon) return;
+      addGalonera();
+      const descs = [...document.querySelectorAll('[data-group="galonera-desc"]')];
+      const mons  = [...document.querySelectorAll('[data-group="galonera-monto"]')];
+      const i = descs.length - 1;
+      if (descs[i]) descs[i].value = item.desc || '';
+      if (mons[i])  mons[i].value  = item.mon  || '';
+    });
+
+    recalcular();
+
+    // Show restore notice
+    const notice = document.createElement('div');
+    notice.style.cssText = 'background:#fef3c7;border:1px solid #fde68a;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:13px;color:#92400e;display:flex;justify-content:space-between;align-items:center;';
+    notice.innerHTML = '<span>&#128196; Se restauro un borrador guardado.</span><button onclick="this.parentNode.remove();localStorage.removeItem('borrador_grifo')" style="background:none;border:none;color:#92400e;cursor:pointer;font-size:18px;padding:0 4px;">&#10005;</button>';
+    document.querySelector('.container').insertBefore(notice, document.querySelector('.container').firstChild);
+  } catch(e) {}
+}
+
+function limpiarBorrador() {
+  try { localStorage.removeItem('borrador_grifo'); } catch(e) {}
+}
+
+// Auto-save on any input change
+document.addEventListener('input', guardarBorrador);
+document.addEventListener('change', guardarBorrador);
+
 async function enviar() {
   const btn = document.getElementById('btn-enviar');
   btn.textContent='Enviando...'; btn.disabled=true;
@@ -641,6 +803,7 @@ async function enviar() {
   };
 
   fetch(WEBHOOK_URL, {method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
+  limpiarBorrador();
 
   document.body.innerHTML =
     '<div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 20px;gap:20px;background:#f0f4f8;">' +
