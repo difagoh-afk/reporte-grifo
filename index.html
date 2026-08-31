@@ -16,9 +16,9 @@ input[type=checkbox] { -webkit-appearance: checkbox; appearance: checkbox; }
   --bg:      #f0f4f8;
   --card:    #ffffff;
   --border:  #dde3ec;
-  --diesel:  #2563a8;
+  --diesel:  #1a1a2e;
   --regular: #16a34a;
-  --premium: #b45309;
+  --premium: #2563a8;
   --accent:  #2563a8;
   --ok:      #16a34a;
   --fail:    #dc2626;
@@ -56,9 +56,9 @@ body { font-family:'Segoe UI',system-ui,sans-serif; background:var(--bg); color:
 .field input.premium { border-left:3px solid var(--premium); }
 
 .fuel-badge { font-size:10px; font-weight:700; letter-spacing:.06em; padding:2px 7px; border-radius:3px; display:inline-block; margin-bottom:3px; }
-.fuel-badge.diesel  { background:#dbeafe; color:var(--diesel); }
+.fuel-badge.diesel  { background:#e2e8f0; color:var(--diesel); }
 .fuel-badge.regular { background:#dcfce7; color:var(--regular); }
-.fuel-badge.premium { background:#fef3c7; color:var(--premium); }
+.fuel-badge.premium { background:#dbeafe; color:var(--premium); }
 
 .grid-2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
 .grid-3 { display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
@@ -839,6 +839,16 @@ document.addEventListener('input', guardarBorrador);
 document.addEventListener('change', guardarBorrador);
 
 async function enviar() {
+  // Validate varillas - all must be filled
+  const varIds = ['var-d1','var-reg','var-prem','var-d2'];
+  const varNames = ['Diesel 1','Regular','Premium','Diesel 2'];
+  const missing = varIds.filter(id => !(parseFloat(document.getElementById(id)?.value) > 0));
+  if (missing.length > 0) {
+    const names = missing.map((id,i) => varNames[varIds.indexOf(id)]).join(', ');
+    alert('Por favor completa las lecturas de varilla: ' + names);
+    return;
+  }
+
   const btn = document.getElementById('btn-enviar');
   btn.textContent='Enviando...'; btn.disabled=true;
   const pagos = buildPagos();
