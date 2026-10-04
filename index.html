@@ -888,10 +888,20 @@ async function enviar() {
 
   try {
     await fetch(WEBHOOK_URL, {method:'POST',mode:'no-cors',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
+    // If we get here, the request was sent successfully
+    limpiarBorrador();
   } catch(e) {
-    // no-cors always throws on response read, that's expected
+    // Real network error - restore button and show error
+    btn.disabled = false;
+    btn.style.pointerEvents = '';
+    btn.textContent = 'ENVIAR REPORTE';
+    const errBanner = document.createElement('div');
+    errBanner.style.cssText = 'background:#fee2e2;border:1px solid #fca5a5;border-radius:8px;padding:12px 16px;margin:12px 0;font-size:14px;color:#dc2626;font-weight:600;text-align:center;';
+    errBanner.innerHTML = '&#10060; Error de conexión — no se pudo enviar. Verifica tu internet y vuelve a intentarlo. Tus datos están guardados.';
+    document.querySelector('.container').insertBefore(errBanner, document.getElementById('btn-enviar').parentNode);
+    document.getElementById('btn-enviar').parentNode.scrollIntoView({behavior:'smooth'});
+    return;
   }
-  limpiarBorrador();
 
   document.body.innerHTML =
     '<div style="min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:40px 20px;gap:20px;background:#f0f4f8;">' +
